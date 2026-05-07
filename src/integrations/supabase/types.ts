@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      photos: {
+        Row: {
+          affected_area: string | null
+          alternatives: Json | null
+          confidence: number | null
+          created_at: string
+          diagnosis: string | null
+          explanation: string | null
+          id: string
+          image_url: string
+          notes: string | null
+          quality_coverage: string | null
+          quality_lighting: string | null
+          quality_sharpness: string | null
+          quality_stability: string | null
+          raw_ai: Json | null
+          severity: string | null
+          status: string
+          storage_path: string
+          tags: string[] | null
+          tank_id: string | null
+          treatment_plan: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affected_area?: string | null
+          alternatives?: Json | null
+          confidence?: number | null
+          created_at?: string
+          diagnosis?: string | null
+          explanation?: string | null
+          id?: string
+          image_url: string
+          notes?: string | null
+          quality_coverage?: string | null
+          quality_lighting?: string | null
+          quality_sharpness?: string | null
+          quality_stability?: string | null
+          raw_ai?: Json | null
+          severity?: string | null
+          status?: string
+          storage_path: string
+          tags?: string[] | null
+          tank_id?: string | null
+          treatment_plan?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affected_area?: string | null
+          alternatives?: Json | null
+          confidence?: number | null
+          created_at?: string
+          diagnosis?: string | null
+          explanation?: string | null
+          id?: string
+          image_url?: string
+          notes?: string | null
+          quality_coverage?: string | null
+          quality_lighting?: string | null
+          quality_sharpness?: string | null
+          quality_stability?: string | null
+          raw_ai?: Json | null
+          severity?: string | null
+          status?: string
+          storage_path?: string
+          tags?: string[] | null
+          tank_id?: string | null
+          treatment_plan?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photos_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tanks: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

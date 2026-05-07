@@ -161,12 +161,31 @@ function CapturePage() {
               <h1 className="text-2xl font-bold tracking-tight">Add context <span className="text-muted-foreground text-base font-normal">(optional)</span></h1>
 
               <div className="mt-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Tank</label>
+                    <select value={tankId} onChange={(e) => setTankId(e.target.value)} className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm">
+                      <option value="">— None —</option>
+                      {tanks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Date taken</label>
+                    <input type="date" value={capturedAt} onChange={(e) => setCapturedAt(e.target.value)}
+                      className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm" />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="text-xs text-muted-foreground">Tank</label>
-                  <select value={tankId} onChange={(e) => setTankId(e.target.value)} className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm">
-                    <option value="">— None —</option>
-                    {tanks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  <label className="text-xs text-muted-foreground">Coral (group photos for growth tracking)</label>
+                  <select value={coralId} onChange={(e) => setCoralId(e.target.value)}
+                    className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm">
+                    <option value="">— Not grouped —</option>
+                    {corals.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
+                  {corals.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground mt-1">Tip: create corals from the Corals tab to group photos.</p>
+                  )}
                 </div>
 
                 <div>

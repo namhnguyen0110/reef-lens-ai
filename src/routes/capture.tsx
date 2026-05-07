@@ -70,6 +70,8 @@ function CapturePage() {
       const { data: photo, error } = await supabase.from("photos").insert({
         user_id: session.user.id,
         tank_id: tankId || null,
+        coral_id: coralId || null,
+        captured_at: capturedAt ? new Date(capturedAt).toISOString() : new Date().toISOString(),
         storage_path: path,
         image_url: pub.publicUrl,
         notes: notes || null,

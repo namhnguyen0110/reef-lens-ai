@@ -183,10 +183,10 @@ function CoralDetailPage() {
               </button>
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative pl-2">
               {/* vertical rail */}
-              <div className="absolute left-[68px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-primary/30 to-transparent" />
-              <div className="space-y-5">
+              <div className="absolute left-[78px] top-3 bottom-3 w-0.5 rounded-full bg-gradient-to-b from-primary/70 via-primary/40 to-primary/10" />
+              <div className="space-y-4">
                 {photos.map((p, i) => {
                   const date = new Date(p.captured_at ?? p.created_at);
                   const isEditing = editingDate === p.id;
@@ -198,32 +198,34 @@ function CoralDetailPage() {
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04 }}
-                      className="relative grid grid-cols-[64px_1fr] gap-4 items-start"
+                      className="relative grid grid-cols-[68px_1fr] gap-5 items-start"
                     >
                       {/* Left date column */}
-                      <div className="text-right pt-2">
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-                          {date.toLocaleDateString(undefined, { month: "short" })}
-                        </p>
-                        <p className="text-2xl font-bold leading-none mt-0.5">
-                          {date.getDate()}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {date.getFullYear()}
-                        </p>
+                      <div className="text-right pt-1">
+                        <div className="inline-flex flex-col items-center glass-strong rounded-2xl px-2.5 py-2 min-w-[60px]">
+                          <p className="text-[9px] uppercase tracking-[0.12em] text-primary font-bold">
+                            {date.toLocaleDateString(undefined, { month: "short" })}
+                          </p>
+                          <p className="text-xl font-bold leading-none mt-0.5">
+                            {date.getDate()}
+                          </p>
+                          <p className="text-[9px] text-muted-foreground mt-0.5">
+                            {date.getFullYear()}
+                          </p>
+                        </div>
                         {daysSince && (
-                          <p className="text-[10px] text-primary/80 font-semibold mt-1.5">
+                          <p className="text-[10px] text-primary font-semibold mt-1.5">
                             +{daysSince}d
                           </p>
                         )}
                       </div>
 
                       {/* Dot on rail */}
-                      <div className="absolute left-[60px] top-4 h-4 w-4 rounded-full gradient-reef ring-4 ring-background shadow-[0_0_12px_hsl(var(--primary)/0.6)]" />
+                      <div className="absolute left-[72px] top-5 h-3.5 w-3.5 rounded-full bg-primary ring-[3px] ring-background shadow-[0_0_0_2px_hsl(var(--primary)/0.35),0_0_14px_hsl(var(--primary)/0.7)]" />
 
                       {/* Right photo card */}
-                      <div className="glass rounded-3xl overflow-hidden">
-                        <Link to="/photo/$id" params={{ id: p.id }} className="block aspect-video relative">
+                      <div className="glass rounded-2xl overflow-hidden">
+                        <Link to="/photo/$id" params={{ id: p.id }} className="block aspect-[5/3] relative">
                           <img src={p.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                           <span className="absolute top-2 left-2 text-[10px] bg-background/70 backdrop-blur px-2 py-0.5 rounded-full font-semibold">

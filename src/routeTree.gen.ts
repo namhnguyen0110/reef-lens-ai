@@ -15,6 +15,7 @@ import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
+import { Route as CompareIdRouteImport } from './routes/compare.$id'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -46,6 +47,11 @@ const PhotoIdRoute = PhotoIdRouteImport.update({
   path: '/photo/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompareIdRoute = CompareIdRouteImport.update({
+  id: '/compare/$id',
+  path: '/compare/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/compare/$id': typeof CompareIdRoute
   '/photo/$id': typeof PhotoIdRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/compare/$id': typeof CompareIdRoute
   '/photo/$id': typeof PhotoIdRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/compare/$id': typeof CompareIdRoute
   '/photo/$id': typeof PhotoIdRoute
 }
 export interface FileRouteTypes {
@@ -80,9 +89,17 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/compare/$id'
     | '/photo/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/capture' | '/insights' | '/timeline' | '/photo/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/capture'
+    | '/insights'
+    | '/timeline'
+    | '/compare/$id'
+    | '/photo/$id'
   id:
     | '__root__'
     | '/'
@@ -90,6 +107,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/compare/$id'
     | '/photo/$id'
   fileRoutesById: FileRoutesById
 }
@@ -99,6 +117,7 @@ export interface RootRouteChildren {
   CaptureRoute: typeof CaptureRoute
   InsightsRoute: typeof InsightsRoute
   TimelineRoute: typeof TimelineRoute
+  CompareIdRoute: typeof CompareIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
 }
 
@@ -146,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PhotoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/compare/$id': {
+      id: '/compare/$id'
+      path: '/compare/$id'
+      fullPath: '/compare/$id'
+      preLoaderRoute: typeof CompareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -155,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaptureRoute: CaptureRoute,
   InsightsRoute: InsightsRoute,
   TimelineRoute: TimelineRoute,
+  CompareIdRoute: CompareIdRoute,
   PhotoIdRoute: PhotoIdRoute,
 }
 export const routeTree = rootRouteImport

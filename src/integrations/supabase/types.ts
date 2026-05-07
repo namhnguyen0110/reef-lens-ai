@@ -24,6 +24,8 @@ export type Database = {
           explanation: string | null
           id: string
           image_url: string
+          likely_causes: Json | null
+          next_step: string | null
           notes: string | null
           quality_coverage: string | null
           quality_lighting: string | null
@@ -48,6 +50,8 @@ export type Database = {
           explanation?: string | null
           id?: string
           image_url: string
+          likely_causes?: Json | null
+          next_step?: string | null
           notes?: string | null
           quality_coverage?: string | null
           quality_lighting?: string | null
@@ -72,6 +76,8 @@ export type Database = {
           explanation?: string | null
           id?: string
           image_url?: string
+          likely_causes?: Json | null
+          next_step?: string | null
           notes?: string | null
           quality_coverage?: string | null
           quality_lighting?: string | null

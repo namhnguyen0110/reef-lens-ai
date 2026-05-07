@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Search, Filter, X } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -9,21 +10,53 @@ export const Route = createFileRoute("/timeline")({
   head: () => ({ meta: [{ title: "Timeline — Reef Tank AI" }] }),
 });
 
-type Photo = { id: string; image_url: string; diagnosis: string | null; severity: string | null; status: string; created_at: string };
+type Photo = {
+  id: string; image_url: string; diagnosis: string | null; severity: string | null;
+  status: string; created_at: string; tags: string[] | null;
+};
+
+type Filter = "all" | "problems" | "healthy";
 
 function TimelinePage() {
   const { session, loading } = useSession();
   const nav = useNavigate();
   const [photos, setPhotos] = useState<Photo[]>([]);
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
   useEffect(() => {
     if (!session) return;
-    supabase.from("photos").select("id,image_url,diagnosis,severity,status,created_at")
-      .order("created_at", { ascending: false }).limit(200)
+    supabase.from("photos").select("id,image_url,diagnosis,severity,status,created_at,tags")
+      .order("created_at", { ascending: false }).limit(300)
       .then(({ data }) => setPhotos(data ?? []));
   }, [session]);
 
-  const groups = groupByPeriod(photos);
+  const allTags = useMemo(() => {
+    const m = new Map<string, number>();
+    photos.forEach(p => (p.tags ?? []).forEach(t => m.set(t, (m.get(t) ?? 0) + 1)));
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([t]) => t);
+  }, [photos]);
+
+  const filtered = useMemo(() => {
+    const ql = q.trim().toLowerCase();
+    return photos.filter(p => {
+      if (filter === "problems" && (!p.diagnosis || p.diagnosis === "Healthy")) return false;
+      if (filter === "healthy" && p.diagnosis !== "Healthy") return false;
+      if (activeTags.length && !activeTags.every(t => p.tags?.includes(t))) return false;
+      if (ql) {
+        const hay = `${p.diagnosis ?? ""} ${(p.tags ?? []).join(" ")}`.toLowerCase();
+        if (!hay.includes(ql)) return false;
+      }
+      return true;
+    });
+  }, [photos, q, filter, activeTags]);
+
+  const groups = groupByPeriod(filtered);
+
+  const toggleTag = (t: string) =>
+    setActiveTags(activeTags.includes(t) ? activeTags.filter(x => x !== t) : [...activeTags, t]);
 
   return (
     <MobileShell>
@@ -31,9 +64,50 @@ function TimelinePage() {
         <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
         <p className="text-sm text-muted-foreground mt-1">Your reef, day by day.</p>
 
-        {photos.length === 0 && (
+        {/* Search */}
+        <div className="mt-5 glass rounded-2xl px-4 py-3 flex items-center gap-2">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search torch coral, ich, dinos…"
+            className="flex-1 bg-transparent text-sm outline-none"
+          />
+          {q && <button onClick={() => setQ("")}><X className="h-4 w-4 text-muted-foreground" /></button>}
+        </div>
+
+        {/* Status filter */}
+        <div className="mt-3 flex gap-2">
+          {(["all", "problems", "healthy"] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`text-xs px-3 py-1.5 rounded-full font-medium capitalize transition ${
+                filter === f ? "gradient-reef text-primary-foreground" : "glass text-muted-foreground"
+              }`}
+            >{f}</button>
+          ))}
+        </div>
+
+        {/* Tag chips */}
+        {allTags.length > 0 && (
+          <div className="mt-3 flex gap-1.5 flex-wrap">
+            {allTags.map(t => {
+              const on = activeTags.includes(t);
+              return (
+                <button key={t} onClick={() => toggleTag(t)}
+                  className={`text-[11px] px-2.5 py-1 rounded-full transition ${on ? "bg-accent/30 text-accent" : "bg-primary/10 text-primary/80"}`}>
+                  {t}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {filtered.length === 0 && (
           <div className="mt-8 glass rounded-3xl p-8 text-center">
-            <p className="text-sm text-muted-foreground">No photos yet.</p>
+            <Filter className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">No photos match your filters.</p>
           </div>
         )}
 

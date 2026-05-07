@@ -184,18 +184,51 @@ function CoralDetailPage() {
             </div>
           ) : (
             <div className="relative">
-              <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-primary/30 to-transparent" />
-              <div className="space-y-4">
+              {/* vertical rail */}
+              <div className="absolute left-[68px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-primary/30 to-transparent" />
+              <div className="space-y-5">
                 {photos.map((p, i) => {
                   const date = new Date(p.captured_at ?? p.created_at);
                   const isEditing = editingDate === p.id;
+                  const prevDate = i > 0 ? new Date(photos[i-1].captured_at ?? photos[i-1].created_at) : null;
+                  const daysSince = prevDate ? Math.max(1, Math.round((date.getTime() - prevDate.getTime()) / 86400000)) : null;
                   return (
-                    <motion.div key={p.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
-                      className="relative pl-12">
-                      <div className="absolute left-1.5 top-3 h-5 w-5 rounded-full gradient-reef ring-4 ring-background" />
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, x: 10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="relative grid grid-cols-[64px_1fr] gap-4 items-start"
+                    >
+                      {/* Left date column */}
+                      <div className="text-right pt-2">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          {date.toLocaleDateString(undefined, { month: "short" })}
+                        </p>
+                        <p className="text-2xl font-bold leading-none mt-0.5">
+                          {date.getDate()}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {date.getFullYear()}
+                        </p>
+                        {daysSince && (
+                          <p className="text-[10px] text-primary/80 font-semibold mt-1.5">
+                            +{daysSince}d
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Dot on rail */}
+                      <div className="absolute left-[60px] top-4 h-4 w-4 rounded-full gradient-reef ring-4 ring-background shadow-[0_0_12px_hsl(var(--primary)/0.6)]" />
+
+                      {/* Right photo card */}
                       <div className="glass rounded-3xl overflow-hidden">
                         <Link to="/photo/$id" params={{ id: p.id }} className="block aspect-video relative">
                           <img src={p.image_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                          <span className="absolute top-2 left-2 text-[10px] bg-background/70 backdrop-blur px-2 py-0.5 rounded-full font-semibold">
+                            #{i + 1}
+                          </span>
                           {p.severity && p.severity !== "None" && (
                             <span className="absolute top-2 right-2 text-[10px] bg-accent/90 text-accent-foreground px-2 py-0.5 rounded-full font-semibold">
                               {p.severity}
@@ -228,7 +261,7 @@ function CoralDetailPage() {
                                 className="flex items-center gap-1.5 text-xs font-semibold text-primary"
                               >
                                 <Calendar className="h-3 w-3" />
-                                {date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                                Edit date
                                 <Pencil className="h-2.5 w-2.5 opacity-60" />
                               </button>
                             )}
@@ -237,12 +270,7 @@ function CoralDetailPage() {
                             </button>
                           </div>
                           {p.diagnosis && (
-                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">{p.diagnosis}</p>
-                          )}
-                          {i > 0 && (
-                            <p className="text-[10px] text-primary/70 mt-1">
-                              +{Math.max(1, Math.round((date.getTime() - new Date(photos[i-1].captured_at ?? photos[i-1].created_at).getTime()) / 86400000))}d since previous
-                            </p>
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{p.diagnosis}</p>
                           )}
                         </div>
                       </div>

@@ -15,6 +15,7 @@ export const Route = createFileRoute("/capture")({
 type Step = "select" | "preview" | "details" | "uploading";
 type Quality = { sharpness: "Good" | "Poor"; lighting: "Good" | "Poor"; coverage: "Good" | "Poor"; stability: "Good" | "Poor" };
 type Tank = { id: string; name: string };
+type Coral = { id: string; name: string };
 
 function CapturePage() {
   const { session, loading } = useSession();
@@ -25,6 +26,9 @@ function CapturePage() {
   const [quality, setQuality] = useState<Quality | null>(null);
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [tankId, setTankId] = useState<string | "">("");
+  const [corals, setCorals] = useState<Coral[]>([]);
+  const [coralId, setCoralId] = useState<string | "">("");
+  const [capturedAt, setCapturedAt] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
@@ -37,6 +41,9 @@ function CapturePage() {
     supabase.from("tanks").select("id,name").order("created_at", { ascending: false }).then(({ data }) => {
       setTanks(data ?? []);
       if (data?.[0]) setTankId(data[0].id);
+    });
+    supabase.from("corals").select("id,name").order("created_at", { ascending: false }).then(({ data }) => {
+      setCorals(data ?? []);
     });
   }, [session]);
 

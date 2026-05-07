@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/corals")({
+export const Route = createFileRoute("/corals/")({
   component: CoralsPage,
   head: () => ({ meta: [{ title: "Corals — Reef Tank AI" }] }),
 });

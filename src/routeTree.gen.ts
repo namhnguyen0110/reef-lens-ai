@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TimelineRouteImport } from './routes/timeline'
 import { Route as InsightsRouteImport } from './routes/insights'
-import { Route as CoralsRouteImport } from './routes/corals'
 import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CoralsIndexRouteImport } from './routes/corals.index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
 import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
@@ -27,11 +27,6 @@ const TimelineRoute = TimelineRouteImport.update({
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoralsRoute = CoralsRouteImport.update({
-  id: '/corals',
-  path: '/corals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CaptureRoute = CaptureRouteImport.update({
@@ -49,15 +44,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CoralsIndexRoute = CoralsIndexRouteImport.update({
+  id: '/corals/',
+  path: '/corals/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PhotoIdRoute = PhotoIdRouteImport.update({
   id: '/photo/$id',
   path: '/photo/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoralsIdRoute = CoralsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => CoralsRoute,
+  id: '/corals/$id',
+  path: '/corals/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CompareIdRoute = CompareIdRouteImport.update({
   id: '/compare/$id',
@@ -69,35 +69,35 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/capture': typeof CaptureRoute
-  '/corals': typeof CoralsRouteWithChildren
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/corals/': typeof CoralsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/capture': typeof CaptureRoute
-  '/corals': typeof CoralsRouteWithChildren
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/corals': typeof CoralsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/capture': typeof CaptureRoute
-  '/corals': typeof CoralsRouteWithChildren
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/corals/': typeof CoralsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,45 +105,46 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/capture'
-    | '/corals'
     | '/insights'
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
     | '/photo/$id'
+    | '/corals/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/capture'
-    | '/corals'
     | '/insights'
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
     | '/photo/$id'
+    | '/corals'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/capture'
-    | '/corals'
     | '/insights'
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
     | '/photo/$id'
+    | '/corals/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CaptureRoute: typeof CaptureRoute
-  CoralsRoute: typeof CoralsRouteWithChildren
   InsightsRoute: typeof InsightsRoute
   TimelineRoute: typeof TimelineRoute
   CompareIdRoute: typeof CompareIdRoute
+  CoralsIdRoute: typeof CoralsIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
+  CoralsIndexRoute: typeof CoralsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -160,13 +161,6 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof InsightsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/corals': {
-      id: '/corals'
-      path: '/corals'
-      fullPath: '/corals'
-      preLoaderRoute: typeof CoralsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/capture': {
@@ -190,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/corals/': {
+      id: '/corals/'
+      path: '/corals'
+      fullPath: '/corals/'
+      preLoaderRoute: typeof CoralsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/photo/$id': {
       id: '/photo/$id'
       path: '/photo/$id'
@@ -199,10 +200,10 @@ declare module '@tanstack/react-router' {
     }
     '/corals/$id': {
       id: '/corals/$id'
-      path: '/$id'
+      path: '/corals/$id'
       fullPath: '/corals/$id'
       preLoaderRoute: typeof CoralsIdRouteImport
-      parentRoute: typeof CoralsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/compare/$id': {
       id: '/compare/$id'
@@ -214,27 +215,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface CoralsRouteChildren {
-  CoralsIdRoute: typeof CoralsIdRoute
-}
-
-const CoralsRouteChildren: CoralsRouteChildren = {
-  CoralsIdRoute: CoralsIdRoute,
-}
-
-const CoralsRouteWithChildren =
-  CoralsRoute._addFileChildren(CoralsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CaptureRoute: CaptureRoute,
-  CoralsRoute: CoralsRouteWithChildren,
   InsightsRoute: InsightsRoute,
   TimelineRoute: TimelineRoute,
   CompareIdRoute: CompareIdRoute,
+  CoralsIdRoute: CoralsIdRoute,
   PhotoIdRoute: PhotoIdRoute,
+  CoralsIndexRoute: CoralsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

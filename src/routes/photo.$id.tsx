@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare, Scissors } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -141,6 +141,18 @@ function PhotoPage() {
                   </ul>
                 </Section>
               )}
+
+              {/* Auto-crop action */}
+              <Link to="/crop/$id" params={{ id: photo.id }} className="glass rounded-3xl p-4 flex items-center justify-between active:scale-[0.99] transition">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-2xl bg-accent/15 text-accent flex items-center justify-center"><Scissors className="h-4 w-4" /></div>
+                  <div>
+                    <p className="text-sm font-semibold">Auto-crop corals</p>
+                    <p className="text-xs text-muted-foreground">Detect & label each coral</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
 
               {/* Compare action */}
               <Link to="/compare/$id" params={{ id: photo.id }} className="glass rounded-3xl p-4 flex items-center justify-between active:scale-[0.99] transition">

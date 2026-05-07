@@ -66,6 +66,7 @@ export type Database = {
           confidence: number | null
           coral_id: string | null
           created_at: string
+          crop_box: Json | null
           diagnosis: string | null
           explanation: string | null
           id: string
@@ -79,6 +80,7 @@ export type Database = {
           quality_stability: string | null
           raw_ai: Json | null
           severity: string | null
+          source_photo_id: string | null
           status: string
           storage_path: string
           tags: string[] | null
@@ -94,6 +96,7 @@ export type Database = {
           confidence?: number | null
           coral_id?: string | null
           created_at?: string
+          crop_box?: Json | null
           diagnosis?: string | null
           explanation?: string | null
           id?: string
@@ -107,6 +110,7 @@ export type Database = {
           quality_stability?: string | null
           raw_ai?: Json | null
           severity?: string | null
+          source_photo_id?: string | null
           status?: string
           storage_path: string
           tags?: string[] | null
@@ -122,6 +126,7 @@ export type Database = {
           confidence?: number | null
           coral_id?: string | null
           created_at?: string
+          crop_box?: Json | null
           diagnosis?: string | null
           explanation?: string | null
           id?: string
@@ -135,6 +140,7 @@ export type Database = {
           quality_stability?: string | null
           raw_ai?: Json | null
           severity?: string | null
+          source_photo_id?: string | null
           status?: string
           storage_path?: string
           tags?: string[] | null
@@ -149,6 +155,13 @@ export type Database = {
             columns: ["coral_id"]
             isOneToOne: false
             referencedRelation: "corals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photos_source_photo_id_fkey"
+            columns: ["source_photo_id"]
+            isOneToOne: false
+            referencedRelation: "photos"
             referencedColumns: ["id"]
           },
           {

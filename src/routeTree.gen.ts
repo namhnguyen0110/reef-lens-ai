@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoralsIndexRouteImport } from './routes/corals.index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
+import { Route as CropIdRouteImport } from './routes/crop.$id'
 import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
 
@@ -54,6 +55,11 @@ const PhotoIdRoute = PhotoIdRouteImport.update({
   path: '/photo/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CropIdRoute = CropIdRouteImport.update({
+  id: '/crop/$id',
+  path: '/crop/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CoralsIdRoute = CoralsIdRouteImport.update({
   id: '/corals/$id',
   path: '/corals/$id',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
+  '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/corals/': typeof CoralsIndexRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
+  '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/corals': typeof CoralsIndexRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/timeline': typeof TimelineRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
+  '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/corals/': typeof CoralsIndexRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
+    | '/crop/$id'
     | '/photo/$id'
     | '/corals/'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
+    | '/crop/$id'
     | '/photo/$id'
     | '/corals'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/compare/$id'
     | '/corals/$id'
+    | '/crop/$id'
     | '/photo/$id'
     | '/corals/'
   fileRoutesById: FileRoutesById
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   TimelineRoute: typeof TimelineRoute
   CompareIdRoute: typeof CompareIdRoute
   CoralsIdRoute: typeof CoralsIdRoute
+  CropIdRoute: typeof CropIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
 }
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PhotoIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crop/$id': {
+      id: '/crop/$id'
+      path: '/crop/$id'
+      fullPath: '/crop/$id'
+      preLoaderRoute: typeof CropIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/corals/$id': {
       id: '/corals/$id'
       path: '/corals/$id'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   TimelineRoute: TimelineRoute,
   CompareIdRoute: CompareIdRoute,
   CoralsIdRoute: CoralsIdRoute,
+  CropIdRoute: CropIdRoute,
   PhotoIdRoute: PhotoIdRoute,
   CoralsIndexRoute: CoralsIndexRoute,
 }

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Camera, Clock, Sparkles } from "lucide-react";
+import { Home, Camera, Clock, Shell } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
@@ -26,9 +26,9 @@ function BottomNav() {
   const { pathname } = useLocation();
   const items = [
     { to: "/", icon: Home, label: "Home" },
+    { to: "/corals", icon: Shell, label: "Corals" },
     { to: "/capture", icon: Camera, label: "Capture" },
     { to: "/timeline", icon: Clock, label: "Timeline" },
-    { to: "/insights", icon: Sparkles, label: "Insights" },
   ];
   return (
     <nav className="absolute bottom-0 left-0 right-0 px-4 pb-4 pt-2">

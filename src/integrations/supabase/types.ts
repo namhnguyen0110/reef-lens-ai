@@ -14,11 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      corals: {
+        Row: {
+          cover_photo_id: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          species: string | null
+          tank_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_photo_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          species?: string | null
+          tank_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_photo_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          species?: string | null
+          tank_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "corals_tank_id_fkey"
+            columns: ["tank_id"]
+            isOneToOne: false
+            referencedRelation: "tanks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photos: {
         Row: {
           affected_area: string | null
           alternatives: Json | null
+          captured_at: string | null
           confidence: number | null
+          coral_id: string | null
           created_at: string
           diagnosis: string | null
           explanation: string | null
@@ -44,7 +90,9 @@ export type Database = {
         Insert: {
           affected_area?: string | null
           alternatives?: Json | null
+          captured_at?: string | null
           confidence?: number | null
+          coral_id?: string | null
           created_at?: string
           diagnosis?: string | null
           explanation?: string | null
@@ -70,7 +118,9 @@ export type Database = {
         Update: {
           affected_area?: string | null
           alternatives?: Json | null
+          captured_at?: string | null
           confidence?: number | null
+          coral_id?: string | null
           created_at?: string
           diagnosis?: string | null
           explanation?: string | null
@@ -94,6 +144,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "photos_coral_id_fkey"
+            columns: ["coral_id"]
+            isOneToOne: false
+            referencedRelation: "corals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "photos_tank_id_fkey"
             columns: ["tank_id"]

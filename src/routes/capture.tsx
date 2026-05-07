@@ -15,6 +15,7 @@ export const Route = createFileRoute("/capture")({
 type Step = "select" | "preview" | "details" | "uploading";
 type Quality = { sharpness: "Good" | "Poor"; lighting: "Good" | "Poor"; coverage: "Good" | "Poor"; stability: "Good" | "Poor" };
 type Tank = { id: string; name: string };
+type Coral = { id: string; name: string };
 
 function CapturePage() {
   const { session, loading } = useSession();
@@ -25,6 +26,9 @@ function CapturePage() {
   const [quality, setQuality] = useState<Quality | null>(null);
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [tankId, setTankId] = useState<string | "">("");
+  const [corals, setCorals] = useState<Coral[]>([]);
+  const [coralId, setCoralId] = useState<string | "">("");
+  const [capturedAt, setCapturedAt] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
@@ -37,6 +41,9 @@ function CapturePage() {
     supabase.from("tanks").select("id,name").order("created_at", { ascending: false }).then(({ data }) => {
       setTanks(data ?? []);
       if (data?.[0]) setTankId(data[0].id);
+    });
+    supabase.from("corals").select("id,name").order("created_at", { ascending: false }).then(({ data }) => {
+      setCorals(data ?? []);
     });
   }, [session]);
 
@@ -63,6 +70,8 @@ function CapturePage() {
       const { data: photo, error } = await supabase.from("photos").insert({
         user_id: session.user.id,
         tank_id: tankId || null,
+        coral_id: coralId || null,
+        captured_at: capturedAt ? new Date(capturedAt).toISOString() : new Date().toISOString(),
         storage_path: path,
         image_url: pub.publicUrl,
         notes: notes || null,
@@ -152,12 +161,31 @@ function CapturePage() {
               <h1 className="text-2xl font-bold tracking-tight">Add context <span className="text-muted-foreground text-base font-normal">(optional)</span></h1>
 
               <div className="mt-5 space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Tank</label>
+                    <select value={tankId} onChange={(e) => setTankId(e.target.value)} className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm">
+                      <option value="">— None —</option>
+                      {tanks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Date taken</label>
+                    <input type="date" value={capturedAt} onChange={(e) => setCapturedAt(e.target.value)}
+                      className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm" />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="text-xs text-muted-foreground">Tank</label>
-                  <select value={tankId} onChange={(e) => setTankId(e.target.value)} className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm">
-                    <option value="">— None —</option>
-                    {tanks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                  <label className="text-xs text-muted-foreground">Coral (group photos for growth tracking)</label>
+                  <select value={coralId} onChange={(e) => setCoralId(e.target.value)}
+                    className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm">
+                    <option value="">— Not grouped —</option>
+                    {corals.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
+                  {corals.length === 0 && (
+                    <p className="text-[11px] text-muted-foreground mt-1">Tip: create corals from the Corals tab to group photos.</p>
+                  )}
                 </div>
 
                 <div>

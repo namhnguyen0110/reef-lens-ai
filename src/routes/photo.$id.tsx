@@ -116,12 +116,43 @@ function PhotoPage() {
                 )}
               </div>
 
+              {/* Next step CTA */}
+              {photo.next_step && (
+                <div className="rounded-3xl p-5 gradient-reef glow-aqua relative overflow-hidden">
+                  <p className="text-xs uppercase tracking-wider text-primary-foreground/80">Do this next</p>
+                  <p className="mt-1 font-semibold text-primary-foreground leading-snug">{photo.next_step}</p>
+                </div>
+              )}
+
               {/* Explanation */}
               {photo.explanation && (
                 <Section icon={<Activity className="h-4 w-4" />} title="What's going on">
                   <p className="text-sm leading-relaxed text-muted-foreground">{photo.explanation}</p>
                 </Section>
               )}
+
+              {/* Likely causes */}
+              {photo.likely_causes && photo.likely_causes.length > 0 && (
+                <Section icon={<ListChecks className="h-4 w-4" />} title="Likely causes">
+                  <ul className="space-y-1.5">
+                    {photo.likely_causes.map((c, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex gap-2"><span className="text-primary">•</span>{c}</li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+
+              {/* Compare action */}
+              <Link to="/compare/$id" params={{ id: photo.id }} className="glass rounded-3xl p-4 flex items-center justify-between active:scale-[0.99] transition">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-2xl bg-primary/15 text-primary flex items-center justify-center"><GitCompare className="h-4 w-4" /></div>
+                  <div>
+                    <p className="text-sm font-semibold">Compare with earlier photo</p>
+                    <p className="text-xs text-muted-foreground">See what changed</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
 
               {/* Treatment */}
               {photo.treatment_plan && (

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/photo/$id")({
 type Photo = {
   id: string; image_url: string; status: string; diagnosis: string | null; confidence: number | null;
   severity: string | null; affected_area: string | null; explanation: string | null;
+  likely_causes: string[] | null; next_step: string | null;
   alternatives: { name: string; confidence: number }[] | null;
   treatment_plan: { steps: string[]; medication?: string; dosage?: string; warnings?: string[]; recovery_timeline?: string; monitor: string[] } | null;
   tags: string[] | null; created_at: string;

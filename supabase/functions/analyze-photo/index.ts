@@ -39,7 +39,9 @@ Deno.serve(async (req) => {
             severity: { type: "string", enum: ["None", "Mild", "Moderate", "Severe"] },
             affected_area: { type: "string" },
             explanation: { type: "string", description: "2-3 sentences in reef-hobbyist language" },
-            tags: { type: "array", items: { type: "string" } },
+            likely_causes: { type: "array", items: { type: "string" }, description: "2-4 likely root causes" },
+            next_step: { type: "string", description: "Single most important next action, one short sentence." },
+            tags: { type: "array", items: { type: "string" }, description: "Categorize content: coral type, fish type, algae, disease, tank-wide, close-up, healthy, problem" },
             alternatives: {
               type: "array",
               items: {
@@ -64,7 +66,7 @@ Deno.serve(async (req) => {
               required: ["steps", "monitor"],
             },
           },
-          required: ["diagnosis", "confidence", "severity", "explanation", "tags", "alternatives", "treatment_plan"],
+          required: ["diagnosis", "confidence", "severity", "explanation", "likely_causes", "next_step", "tags", "alternatives", "treatment_plan"],
         },
       },
     }];
@@ -117,6 +119,8 @@ Deno.serve(async (req) => {
       severity: args.severity,
       affected_area: args.affected_area ?? null,
       explanation: args.explanation,
+      likely_causes: args.likely_causes ?? null,
+      next_step: args.next_step ?? null,
       alternatives: args.alternatives,
       treatment_plan: args.treatment_plan,
       tags: merged,

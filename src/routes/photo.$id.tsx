@@ -209,7 +209,9 @@ function PhotoPage() {
                   <div className="h-9 w-9 rounded-2xl bg-primary/15 text-primary flex items-center justify-center"><GitCompare className="h-4 w-4" /></div>
                   <div>
                     <p className="text-sm font-semibold">Compare with earlier photo</p>
-                    <p className="text-xs text-muted-foreground">See what changed</p>
+                    <p className="text-xs text-muted-foreground">
+                      {compareCount > 0 ? `${compareCount} saved comparison${compareCount === 1 ? "" : "s"} · tap to view` : "See what changed"}
+                    </p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />

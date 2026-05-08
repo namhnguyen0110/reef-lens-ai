@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Camera, Clock, Shell } from "lucide-react";
+import { Home, Camera, Clock, Shell, Video } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
@@ -27,6 +27,7 @@ function BottomNav() {
   const items = [
     { to: "/", icon: Home, label: "Home" },
     { to: "/corals", icon: Shell, label: "Corals" },
+    { to: "/cameras", icon: Video, label: "Cameras" },
     { to: "/capture", icon: Camera, label: "Capture" },
     { to: "/timeline", icon: Clock, label: "Timeline" },
   ];

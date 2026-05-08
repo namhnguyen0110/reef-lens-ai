@@ -161,18 +161,38 @@ function TimelinePage() {
             <div key={g.label}>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{g.label}</p>
               <div className="grid grid-cols-3 gap-2">
-                {g.items.map(p => (
-                  <Link key={p.id} to="/photo/$id" params={{ id: p.id }} className="relative aspect-square rounded-2xl overflow-hidden">
-                    <img src={p.image_url} alt="" className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
-                    {p.severity && p.severity !== "None" && (
-                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
-                    )}
-                    <div className="absolute bottom-1 left-1.5 right-1.5">
-                      <p className="text-[10px] font-medium text-white line-clamp-1">{p.diagnosis ?? p.status}</p>
-                    </div>
-                  </Link>
-                ))}
+                {g.items.map(p => {
+                  const isSel = selected.has(p.id);
+                  const inner = (
+                    <>
+                      <img src={p.image_url} alt="" className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
+                      {p.severity && p.severity !== "None" && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
+                      )}
+                      <div className="absolute bottom-1 left-1.5 right-1.5">
+                        <p className="text-[10px] font-medium text-white line-clamp-1">{p.diagnosis ?? p.status}</p>
+                      </div>
+                      {selectMode && (
+                        <>
+                          <div className={`absolute inset-0 transition ${isSel ? "bg-primary/40 ring-2 ring-primary" : "bg-black/0"}`} />
+                          <div className={`absolute top-1.5 left-1.5 h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isSel ? "bg-primary text-primary-foreground" : "bg-background/70 text-muted-foreground border border-border"}`}>
+                            {isSel ? "✓" : ""}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  );
+                  return selectMode ? (
+                    <button key={p.id} onClick={() => toggleSelect(p.id)} className="relative aspect-square rounded-2xl overflow-hidden text-left">
+                      {inner}
+                    </button>
+                  ) : (
+                    <Link key={p.id} to="/photo/$id" params={{ id: p.id }} className="relative aspect-square rounded-2xl overflow-hidden">
+                      {inner}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}

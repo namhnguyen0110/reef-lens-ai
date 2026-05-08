@@ -273,7 +273,7 @@ function CameraDetail() {
             <div className="glass rounded-3xl p-4 flex items-start gap-3">
               <Sparkles className="h-4 w-4 text-primary mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Each scheduled snapshot is bundled with comparison frames from 1 min, 10 min, 1 hour, yesterday and last week before being sent to AI for whole-tank change detection.
+                Scheduled snapshots are saved silently — open any from the timeline to analyze it on its own or compare against earlier frames.
               </p>
             </div>
           </div>

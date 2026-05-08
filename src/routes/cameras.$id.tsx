@@ -211,18 +211,19 @@ function CameraDetail() {
           <>
             <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden bg-black">
               <video
+                ref={videoRef}
                 src={MOCK_LIVE_VIDEO}
                 poster={mockLiveUrl(cam.mock_seed)}
-                autoPlay muted loop playsInline
+                autoPlay muted loop playsInline crossOrigin="anonymous"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute top-3 left-3 glass-strong rounded-full px-2.5 py-1 text-[10px] flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" /> LIVE
               </div>
             </div>
-            <button onClick={() => captureSnapshot(false)}
-              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2">
-              <CameraIcon className="h-4 w-4" /> Capture snapshot
+            <button onClick={() => captureSnapshot(false)} disabled={capturing}
+              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-60">
+              <CameraIcon className="h-4 w-4" /> {capturing ? "Capturing…" : "Capture snapshot"}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/timeline" className="glass rounded-2xl py-3 text-center text-sm font-medium flex items-center justify-center gap-2">

@@ -36,6 +36,10 @@ function PhotoPage() {
     const load = async () => {
       const { data } = await supabase.from("photos").select("*").eq("id", id).single();
       if (active) setPhoto(data as Photo | null);
+      const { count } = await supabase.from("comparisons")
+        .select("id", { count: "exact", head: true })
+        .or(`photo_older_id.eq.${id},photo_newer_id.eq.${id}`);
+      if (active) setCompareCount(count ?? 0);
     };
     load();
     const ch = supabase.channel(`photo-${id}`)

@@ -29,7 +29,10 @@ function CameraDetail() {
   const [cam, setCam] = useState<Camera | null>(null);
   const [snaps, setSnaps] = useState<Snap[]>([]);
   const [tab, setTab] = useState<"live" | "schedule" | "timeline">("live");
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
+  const [pendingPhotoId, setPendingPhotoId] = useState<string | null>(null);
+  const [capturing, setCapturing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastAutoRef = useRef<number>(Date.now());
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);

@@ -26,6 +26,7 @@ function PhotoPage() {
   const { session, loading } = useSession();
   const nav = useNavigate();
   const [photo, setPhoto] = useState<Photo | null>(null);
+  const [compareCount, setCompareCount] = useState(0);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 

@@ -198,6 +198,23 @@ function TimelinePage() {
           ))}
         </div>
       </div>
+      {selectMode && (
+        <div className="fixed bottom-24 left-0 right-0 z-40 px-5 pointer-events-none">
+          <div className="max-w-md mx-auto glass-strong rounded-2xl p-3 flex items-center justify-between gap-3 pointer-events-auto">
+            <p className="text-sm font-medium">{selected.size} selected</p>
+            <div className="flex items-center gap-2">
+              <button onClick={exitSelect} className="text-xs px-3 py-2 rounded-xl glass">Cancel</button>
+              <button
+                onClick={deleteSelected}
+                disabled={selected.size === 0 || deleting}
+                className="text-xs px-3 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> {deleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MobileShell>
   );
 }

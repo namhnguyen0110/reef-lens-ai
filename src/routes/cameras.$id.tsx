@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settings2, History } from "lucide-react";
+import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settings2, History, Sparkle, Layers, Timer, X } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -29,7 +29,10 @@ function CameraDetail() {
   const [cam, setCam] = useState<Camera | null>(null);
   const [snaps, setSnaps] = useState<Snap[]>([]);
   const [tab, setTab] = useState<"live" | "schedule" | "timeline">("live");
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
+  const [pendingPhotoId, setPendingPhotoId] = useState<string | null>(null);
+  const [capturing, setCapturing] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastAutoRef = useRef<number>(Date.now());
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
@@ -55,7 +58,7 @@ function CameraDetail() {
     return () => clearInterval(i);
   }, []);
 
-  // Scheduler — runs while tab open. Real prod would run server-side via pg_cron.
+  // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
     if (!cam || !session) return;
     const i = setInterval(async () => {
@@ -69,33 +72,65 @@ function CameraDetail() {
     return () => clearInterval(i);
   }, [cam, session]);
 
-  const captureSnapshot = async (auto = false) => {
-    if (!cam || !session) return;
-    const at = new Date();
-    const url = mockSnapshotUrl(cam.mock_seed, at);
-    const path = `mock://${cam.id}/${at.getTime()}`;
-    const { data, error } = await supabase.from("photos").insert({
-      user_id: session.user.id,
-      tank_id: cam.tank_id,
-      camera_id: cam.id,
-      auto_captured: auto,
-      captured_at: at.toISOString(),
-      storage_path: path,
-      image_url: url,
-      status: "pending",
-      tags: auto ? ["auto", "camera"] : ["manual", "camera"],
-    }).select().single();
-    if (error) { toast.error(error.message); return; }
-    await supabase.from("cameras").update({ last_snapshot_at: at.toISOString() }).eq("id", cam.id);
+  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) return null;
+    const w = video.videoWidth || 1280;
+    const h = video.videoHeight || 720;
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(video, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.85)!);
+    return { blob, dataUrl };
+  };
 
-    // Build comparison bundle (latest + 1m, 10m, 1h, yesterday) and analyze.
-    const bundle = await buildBundle(cam.id);
-    supabase.functions.invoke("analyze-photo", {
-      body: { photoId: data.id, comparisonPhotoIds: bundle },
-    }).catch(console.error);
-
-    if (!auto) toast.success("Snapshot captured · analyzing");
-    loadSnaps();
+  const captureSnapshot = async (auto = false): Promise<string | null> => {
+    if (!cam || !session) return null;
+    setCapturing(true);
+    try {
+      const at = new Date();
+      const frame = await grabFrameBlob();
+      let imageUrl: string;
+      let storagePath: string;
+      if (frame) {
+        storagePath = `${session.user.id}/${cam.id}/${at.getTime()}.jpg`;
+        const { error: upErr } = await supabase.storage.from("tank-photos").upload(storagePath, frame.blob, { contentType: "image/jpeg" });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("tank-photos").getPublicUrl(storagePath);
+        imageUrl = pub.publicUrl;
+      } else {
+        // Fallback if video frame isn't ready
+        imageUrl = mockSnapshotUrl(cam.mock_seed, at);
+        storagePath = `mock://${cam.id}/${at.getTime()}`;
+      }
+      const { data, error } = await supabase.from("photos").insert({
+        user_id: session.user.id,
+        tank_id: cam.tank_id,
+        camera_id: cam.id,
+        auto_captured: auto,
+        captured_at: at.toISOString(),
+        storage_path: storagePath,
+        image_url: imageUrl,
+        status: "pending",
+        tags: auto ? ["auto", "camera"] : ["manual", "camera"],
+      }).select().single();
+      if (error) throw error;
+      await supabase.from("cameras").update({ last_snapshot_at: at.toISOString() }).eq("id", cam.id);
+      loadSnaps();
+      if (!auto) {
+        setPendingPhotoId(data.id);
+        toast.success("Snapshot captured");
+      }
+      return data.id;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Capture failed");
+      return null;
+    } finally {
+      setCapturing(false);
+    }
   };
 
   const buildBundle = async (cameraId: string): Promise<string[]> => {
@@ -113,6 +148,28 @@ function CameraDetail() {
       if (data?.[0]) ids.push(data[0].id);
     }
     return [...new Set(ids)];
+  };
+
+  const analyzeSingle = async () => {
+    if (!pendingPhotoId) return;
+    supabase.functions.invoke("analyze-photo", { body: { photoId: pendingPhotoId } }).catch(console.error);
+    toast.success("Analyzing image…");
+    nav({ to: "/photo/$id", params: { id: pendingPhotoId } });
+  };
+
+  const analyzeWithBundle = async () => {
+    if (!pendingPhotoId || !cam) return;
+    const bundle = await buildBundle(cam.id);
+    supabase.functions.invoke("analyze-photo", {
+      body: { photoId: pendingPhotoId, comparisonPhotoIds: bundle },
+    }).catch(console.error);
+    toast.success("Comparing against 1m / 10m / 1h / 1d / 1w…");
+    nav({ to: "/photo/$id", params: { id: pendingPhotoId } });
+  };
+
+  const manualCompare = () => {
+    if (!pendingPhotoId) return;
+    nav({ to: "/compare/$id", params: { id: pendingPhotoId } });
   };
 
   const updateSchedule = async (patch: Partial<Camera>) => {
@@ -154,18 +211,19 @@ function CameraDetail() {
           <>
             <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden bg-black">
               <video
+                ref={videoRef}
                 src={MOCK_LIVE_VIDEO}
                 poster={mockLiveUrl(cam.mock_seed)}
-                autoPlay muted loop playsInline
+                autoPlay muted loop playsInline crossOrigin="anonymous"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute top-3 left-3 glass-strong rounded-full px-2.5 py-1 text-[10px] flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" /> LIVE
               </div>
             </div>
-            <button onClick={() => captureSnapshot(false)}
-              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2">
-              <CameraIcon className="h-4 w-4" /> Capture snapshot
+            <button onClick={() => captureSnapshot(false)} disabled={capturing}
+              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-60">
+              <CameraIcon className="h-4 w-4" /> {capturing ? "Capturing…" : "Capture snapshot"}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/timeline" className="glass rounded-2xl py-3 text-center text-sm font-medium flex items-center justify-center gap-2">
@@ -215,7 +273,7 @@ function CameraDetail() {
             <div className="glass rounded-3xl p-4 flex items-start gap-3">
               <Sparkles className="h-4 w-4 text-primary mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Each scheduled snapshot is bundled with comparison frames from 1 min, 10 min, 1 hour, yesterday and last week before being sent to AI for whole-tank change detection.
+                Scheduled snapshots are saved silently — open any from the timeline to analyze it on its own or compare against earlier frames.
               </p>
             </div>
           </div>
@@ -243,6 +301,41 @@ function CameraDetail() {
           </div>
         )}
       </div>
+
+      {pendingPhotoId && (
+        <div className="fixed inset-0 z-50 bg-background/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4" onClick={() => setPendingPhotoId(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md glass-strong rounded-3xl p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-base font-semibold">Snapshot saved · what next?</p>
+              <button onClick={() => setPendingPhotoId(null)} className="h-8 w-8 rounded-full glass flex items-center justify-center">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Choose how you want to inspect this frame. Nothing runs automatically.</p>
+            <button onClick={analyzeSingle} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl gradient-reef flex items-center justify-center text-primary-foreground"><Sparkle className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Analyze this image</p>
+                <p className="text-[11px] text-muted-foreground">Run AI diagnosis on just this snapshot.</p>
+              </div>
+            </button>
+            <button onClick={manualCompare} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary"><Layers className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Manual compare</p>
+                <p className="text-[11px] text-muted-foreground">Pick which earlier snapshots to compare against.</p>
+              </div>
+            </button>
+            <button onClick={analyzeWithBundle} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary"><Timer className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Scheduled comparison</p>
+                <p className="text-[11px] text-muted-foreground">Now vs 1m · 10m · 1h · 1d · 1w ago.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
     </MobileShell>
   );
 }

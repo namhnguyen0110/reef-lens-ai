@@ -53,6 +53,7 @@ function ComparePage() {
         .order("created_at", { ascending: false }).limit(40);
       setCandidates(list ?? []);
       if (list?.[0]) setOtherId(list[0].id);
+      loadHistory();
     })();
   }, [id, session]);
 

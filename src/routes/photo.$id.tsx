@@ -13,7 +13,7 @@ export const Route = createFileRoute("/photo/$id")({
 });
 
 type Photo = {
-  id: string; image_url: string; status: string; diagnosis: string | null; confidence: number | null;
+  id: string; image_url: string; storage_path: string | null; status: string; diagnosis: string | null; confidence: number | null;
   severity: string | null; affected_area: string | null; explanation: string | null;
   likely_causes: string[] | null; next_step: string | null;
   alternatives: { name: string; confidence: number }[] | null;

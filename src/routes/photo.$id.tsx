@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare, Scissors } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare, Scissors, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";

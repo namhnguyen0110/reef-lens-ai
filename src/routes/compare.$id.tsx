@@ -75,6 +75,20 @@ function ComparePage() {
       });
       if (error) throw error;
       setResult(data.result);
+      // Persist to history
+      if (session?.user) {
+        await supabase.from("comparisons").insert({
+          user_id: session.user.id,
+          photo_older_id: older.id,
+          photo_newer_id: newer.id,
+          summary: data.result.summary,
+          trend: data.result.trend,
+          changes: data.result.changes ?? [],
+          recommendations: data.result.recommendations ?? [],
+          raw: data.result,
+        });
+        loadHistory();
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Compare failed");
     } finally { setAnalyzing(false); }

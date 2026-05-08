@@ -30,6 +30,15 @@ function ComparePage() {
   const [otherId, setOtherId] = useState<string>("");
   const [result, setResult] = useState<Comparison | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [history, setHistory] = useState<Array<{ id: string; summary: string; trend: Comparison["trend"]; changes: string[]; recommendations: string[]; created_at: string; photo_older_id: string; photo_newer_id: string }>>([]);
+
+  const loadHistory = async () => {
+    const { data } = await supabase.from("comparisons")
+      .select("id,summary,trend,changes,recommendations,created_at,photo_older_id,photo_newer_id")
+      .or(`photo_older_id.eq.${id},photo_newer_id.eq.${id}`)
+      .order("created_at", { ascending: false });
+    setHistory((data ?? []) as any);
+  };
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 

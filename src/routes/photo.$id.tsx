@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare, Scissors } from "lucide-react";
+import { ArrowLeft, Loader2, AlertTriangle, Activity, Pill, Eye, Clock, Sparkles, ListChecks, ArrowRight, GitCompare, Scissors, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/photo/$id")({
 });
 
 type Photo = {
-  id: string; image_url: string; status: string; diagnosis: string | null; confidence: number | null;
+  id: string; image_url: string; storage_path: string | null; status: string; diagnosis: string | null; confidence: number | null;
   severity: string | null; affected_area: string | null; explanation: string | null;
   likely_causes: string[] | null; next_step: string | null;
   alternatives: { name: string; confidence: number }[] | null;
@@ -60,9 +61,25 @@ function PhotoPage() {
           <Link to="/" className="absolute top-6 left-5 h-10 w-10 rounded-2xl glass-strong flex items-center justify-center">
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div className="absolute top-6 right-5 glass-strong rounded-full px-3 py-1.5 text-xs flex items-center gap-1.5">
-            <Clock className="h-3 w-3" />
-            {new Date(photo.created_at).toLocaleString()}
+          <div className="absolute top-6 right-5 flex items-center gap-2">
+            <div className="glass-strong rounded-full px-3 py-1.5 text-xs flex items-center gap-1.5">
+              <Clock className="h-3 w-3" />
+              {new Date(photo.created_at).toLocaleString()}
+            </div>
+            <button
+              onClick={async () => {
+                if (!confirm("Delete this photo? This cannot be undone.")) return;
+                if (photo.storage_path) await supabase.storage.from("tank-photos").remove([photo.storage_path]);
+                const { error } = await supabase.from("photos").delete().eq("id", photo.id);
+                if (error) { toast.error(error.message); return; }
+                toast.success("Photo deleted");
+                nav({ to: "/timeline" });
+              }}
+              className="h-9 w-9 rounded-2xl glass-strong flex items-center justify-center text-destructive"
+              aria-label="Delete photo"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
           </div>
         </div>
 

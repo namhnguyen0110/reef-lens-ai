@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, Trash2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/timeline")({
 });
 
 type Photo = {
-  id: string; image_url: string; diagnosis: string | null; severity: string | null;
+  id: string; image_url: string; storage_path: string | null; diagnosis: string | null; severity: string | null;
   status: string; created_at: string; tags: string[] | null;
 };
 
@@ -24,14 +25,48 @@ function TimelinePage() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
-  useEffect(() => {
-    if (!session) return;
-    supabase.from("photos").select("id,image_url,diagnosis,severity,status,created_at,tags")
+  const reload = () => {
+    supabase.from("photos").select("id,image_url,storage_path,diagnosis,severity,status,created_at,tags")
       .order("created_at", { ascending: false }).limit(300)
-      .then(({ data }) => setPhotos(data ?? []));
-  }, [session]);
+      .then(({ data }) => setPhotos((data ?? []) as Photo[]));
+  };
+  useEffect(() => { if (session) reload(); }, [session]);
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const exitSelect = () => { setSelectMode(false); setSelected(new Set()); };
+
+  const deleteSelected = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Delete ${selected.size} photo${selected.size > 1 ? "s" : ""}? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      const ids = Array.from(selected);
+      const paths = photos
+        .filter(p => ids.includes(p.id) && p.storage_path && !p.storage_path.startsWith("mock://"))
+        .map(p => p.storage_path!);
+      if (paths.length) await supabase.storage.from("tank-photos").remove(paths);
+      const { error } = await supabase.from("photos").delete().in("id", ids);
+      if (error) throw error;
+      toast.success(`Deleted ${ids.length} photo${ids.length > 1 ? "s" : ""}`);
+      exitSelect();
+      reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const allTags = useMemo(() => {
     const m = new Map<string, number>();
@@ -61,9 +96,19 @@ function TimelinePage() {
   return (
     <MobileShell>
       <div className="px-5 pt-8 pb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
-        <p className="text-sm text-muted-foreground mt-1">Your reef, day by day.</p>
-
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
+            <p className="text-sm text-muted-foreground mt-1">Your reef, day by day.</p>
+          </div>
+          {selectMode ? (
+            <button onClick={exitSelect} className="text-xs glass rounded-full px-3 py-1.5 font-medium">Done</button>
+          ) : (
+            <button onClick={() => setSelectMode(true)} className="text-xs glass rounded-full px-3 py-1.5 font-medium flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Select
+            </button>
+          )}
+        </div>
         {/* Search */}
         <div className="mt-5 glass rounded-2xl px-4 py-3 flex items-center gap-2">
           <Search className="h-4 w-4 text-muted-foreground" />
@@ -116,23 +161,60 @@ function TimelinePage() {
             <div key={g.label}>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{g.label}</p>
               <div className="grid grid-cols-3 gap-2">
-                {g.items.map(p => (
-                  <Link key={p.id} to="/photo/$id" params={{ id: p.id }} className="relative aspect-square rounded-2xl overflow-hidden">
-                    <img src={p.image_url} alt="" className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
-                    {p.severity && p.severity !== "None" && (
-                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
-                    )}
-                    <div className="absolute bottom-1 left-1.5 right-1.5">
-                      <p className="text-[10px] font-medium text-white line-clamp-1">{p.diagnosis ?? p.status}</p>
-                    </div>
-                  </Link>
-                ))}
+                {g.items.map(p => {
+                  const isSel = selected.has(p.id);
+                  const inner = (
+                    <>
+                      <img src={p.image_url} alt="" className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
+                      {p.severity && p.severity !== "None" && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
+                      )}
+                      <div className="absolute bottom-1 left-1.5 right-1.5">
+                        <p className="text-[10px] font-medium text-white line-clamp-1">{p.diagnosis ?? p.status}</p>
+                      </div>
+                      {selectMode && (
+                        <>
+                          <div className={`absolute inset-0 transition ${isSel ? "bg-primary/40 ring-2 ring-primary" : "bg-black/0"}`} />
+                          <div className={`absolute top-1.5 left-1.5 h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${isSel ? "bg-primary text-primary-foreground" : "bg-background/70 text-muted-foreground border border-border"}`}>
+                            {isSel ? "✓" : ""}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  );
+                  return selectMode ? (
+                    <button key={p.id} onClick={() => toggleSelect(p.id)} className="relative aspect-square rounded-2xl overflow-hidden text-left">
+                      {inner}
+                    </button>
+                  ) : (
+                    <Link key={p.id} to="/photo/$id" params={{ id: p.id }} className="relative aspect-square rounded-2xl overflow-hidden">
+                      {inner}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
       </div>
+      {selectMode && (
+        <div className="fixed bottom-24 left-0 right-0 z-40 px-5 pointer-events-none">
+          <div className="max-w-md mx-auto glass-strong rounded-2xl p-3 flex items-center justify-between gap-3 pointer-events-auto">
+            <p className="text-sm font-medium">{selected.size} selected</p>
+            <div className="flex items-center gap-2">
+              <button onClick={exitSelect} className="text-xs px-3 py-2 rounded-xl glass">Cancel</button>
+              <button
+                onClick={deleteSelected}
+                disabled={selected.size === 0 || deleting}
+                className="text-xs px-3 py-2 rounded-xl bg-destructive text-destructive-foreground font-semibold flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> {deleting ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MobileShell>
   );
 }

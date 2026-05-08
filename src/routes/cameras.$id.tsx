@@ -74,17 +74,28 @@ function CameraDetail() {
 
   const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
     const video = videoRef.current;
-    if (!video || video.readyState < 2) return null;
-    const w = video.videoWidth || 1280;
-    const h = video.videoHeight || 720;
+    if (!video) return null;
+    // Wait up to ~2.5s for the video to have a decoded frame ready.
+    for (let i = 0; i < 25 && video.readyState < 2; i++) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    if (video.readyState < 2 || !video.videoWidth) return null;
+    const w = video.videoWidth;
+    const h = video.videoHeight;
     const canvas = document.createElement("canvas");
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    ctx.drawImage(video, 0, 0, w, h);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-    const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.85)!);
-    return { blob, dataUrl };
+    try {
+      ctx.drawImage(video, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      const blob: Blob | null = await new Promise((res) => canvas.toBlob((b) => res(b), "image/jpeg", 0.85));
+      if (!blob) return null;
+      return { blob, dataUrl };
+    } catch {
+      // Tainted canvas (cross-origin) — fall back.
+      return null;
+    }
   };
 
   const captureSnapshot = async (auto = false): Promise<string | null> => {

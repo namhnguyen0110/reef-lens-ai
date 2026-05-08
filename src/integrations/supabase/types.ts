@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      comparisons: {
+        Row: {
+          changes: Json
+          created_at: string
+          id: string
+          photo_newer_id: string
+          photo_older_id: string
+          raw: Json | null
+          recommendations: Json
+          summary: string
+          trend: string
+          user_id: string
+        }
+        Insert: {
+          changes?: Json
+          created_at?: string
+          id?: string
+          photo_newer_id: string
+          photo_older_id: string
+          raw?: Json | null
+          recommendations?: Json
+          summary: string
+          trend: string
+          user_id: string
+        }
+        Update: {
+          changes?: Json
+          created_at?: string
+          id?: string
+          photo_newer_id?: string
+          photo_older_id?: string
+          raw?: Json | null
+          recommendations?: Json
+          summary?: string
+          trend?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       corals: {
         Row: {
           cover_photo_id: string | null

@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, Trash2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/timeline")({
 });
 
 type Photo = {
-  id: string; image_url: string; diagnosis: string | null; severity: string | null;
+  id: string; image_url: string; storage_path: string | null; diagnosis: string | null; severity: string | null;
   status: string; created_at: string; tags: string[] | null;
 };
 

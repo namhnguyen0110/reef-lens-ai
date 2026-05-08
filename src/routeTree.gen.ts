@@ -15,10 +15,13 @@ import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoralsIndexRouteImport } from './routes/corals.index'
+import { Route as CamerasIndexRouteImport } from './routes/cameras.index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
 import { Route as CropIdRouteImport } from './routes/crop.$id'
 import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
+import { Route as CamerasNewRouteImport } from './routes/cameras.new'
+import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -50,6 +53,11 @@ const CoralsIndexRoute = CoralsIndexRouteImport.update({
   path: '/corals/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CamerasIndexRoute = CamerasIndexRouteImport.update({
+  id: '/cameras/',
+  path: '/cameras/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PhotoIdRoute = PhotoIdRouteImport.update({
   id: '/photo/$id',
   path: '/photo/$id',
@@ -70,6 +78,16 @@ const CompareIdRoute = CompareIdRouteImport.update({
   path: '/compare/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CamerasNewRoute = CamerasNewRouteImport.update({
+  id: '/cameras/new',
+  path: '/cameras/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CamerasIdRoute = CamerasIdRouteImport.update({
+  id: '/cameras/$id',
+  path: '/cameras/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,10 +95,13 @@ export interface FileRoutesByFullPath {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/cameras/$id': typeof CamerasIdRoute
+  '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -89,10 +110,13 @@ export interface FileRoutesByTo {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/cameras/$id': typeof CamerasIdRoute
+  '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
 }
 export interface FileRoutesById {
@@ -102,10 +126,13 @@ export interface FileRoutesById {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/cameras/$id': typeof CamerasIdRoute
+  '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
 }
 export interface FileRouteTypes {
@@ -116,10 +143,13 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/cameras/$id'
+    | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/cameras/'
     | '/corals/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,10 +158,13 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/cameras/$id'
+    | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/cameras'
     | '/corals'
   id:
     | '__root__'
@@ -140,10 +173,13 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/cameras/$id'
+    | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/cameras/'
     | '/corals/'
   fileRoutesById: FileRoutesById
 }
@@ -153,10 +189,13 @@ export interface RootRouteChildren {
   CaptureRoute: typeof CaptureRoute
   InsightsRoute: typeof InsightsRoute
   TimelineRoute: typeof TimelineRoute
+  CamerasIdRoute: typeof CamerasIdRoute
+  CamerasNewRoute: typeof CamerasNewRoute
   CompareIdRoute: typeof CompareIdRoute
   CoralsIdRoute: typeof CoralsIdRoute
   CropIdRoute: typeof CropIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
+  CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
 }
 
@@ -204,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoralsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cameras/': {
+      id: '/cameras/'
+      path: '/cameras'
+      fullPath: '/cameras/'
+      preLoaderRoute: typeof CamerasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/photo/$id': {
       id: '/photo/$id'
       path: '/photo/$id'
@@ -232,6 +278,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cameras/new': {
+      id: '/cameras/new'
+      path: '/cameras/new'
+      fullPath: '/cameras/new'
+      preLoaderRoute: typeof CamerasNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cameras/$id': {
+      id: '/cameras/$id'
+      path: '/cameras/$id'
+      fullPath: '/cameras/$id'
+      preLoaderRoute: typeof CamerasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -241,10 +301,13 @@ const rootRouteChildren: RootRouteChildren = {
   CaptureRoute: CaptureRoute,
   InsightsRoute: InsightsRoute,
   TimelineRoute: TimelineRoute,
+  CamerasIdRoute: CamerasIdRoute,
+  CamerasNewRoute: CamerasNewRoute,
   CompareIdRoute: CompareIdRoute,
   CoralsIdRoute: CoralsIdRoute,
   CropIdRoute: CropIdRoute,
   PhotoIdRoute: PhotoIdRoute,
+  CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
 }
 export const routeTree = rootRouteImport

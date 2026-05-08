@@ -301,6 +301,41 @@ function CameraDetail() {
           </div>
         )}
       </div>
+
+      {pendingPhotoId && (
+        <div className="fixed inset-0 z-50 bg-background/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-4" onClick={() => setPendingPhotoId(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md glass-strong rounded-3xl p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-base font-semibold">Snapshot saved · what next?</p>
+              <button onClick={() => setPendingPhotoId(null)} className="h-8 w-8 rounded-full glass flex items-center justify-center">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Choose how you want to inspect this frame. Nothing runs automatically.</p>
+            <button onClick={analyzeSingle} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl gradient-reef flex items-center justify-center text-primary-foreground"><Sparkle className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Analyze this image</p>
+                <p className="text-[11px] text-muted-foreground">Run AI diagnosis on just this snapshot.</p>
+              </div>
+            </button>
+            <button onClick={manualCompare} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary"><Layers className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Manual compare</p>
+                <p className="text-[11px] text-muted-foreground">Pick which earlier snapshots to compare against.</p>
+              </div>
+            </button>
+            <button onClick={analyzeWithBundle} className="w-full glass rounded-2xl p-4 flex items-center gap-3 text-left hover:bg-accent/40 transition">
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary"><Timer className="h-4 w-4" /></div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold">Scheduled comparison</p>
+                <p className="text-[11px] text-muted-foreground">Now vs 1m · 10m · 1h · 1d · 1w ago.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
     </MobileShell>
   );
 }

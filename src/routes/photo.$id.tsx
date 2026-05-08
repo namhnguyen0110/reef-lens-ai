@@ -26,6 +26,7 @@ function PhotoPage() {
   const { session, loading } = useSession();
   const nav = useNavigate();
   const [photo, setPhoto] = useState<Photo | null>(null);
+  const [compareCount, setCompareCount] = useState(0);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 
@@ -35,6 +36,10 @@ function PhotoPage() {
     const load = async () => {
       const { data } = await supabase.from("photos").select("*").eq("id", id).single();
       if (active) setPhoto(data as Photo | null);
+      const { count } = await supabase.from("comparisons")
+        .select("id", { count: "exact", head: true })
+        .or(`photo_older_id.eq.${id},photo_newer_id.eq.${id}`);
+      if (active) setCompareCount(count ?? 0);
     };
     load();
     const ch = supabase.channel(`photo-${id}`)
@@ -204,7 +209,9 @@ function PhotoPage() {
                   <div className="h-9 w-9 rounded-2xl bg-primary/15 text-primary flex items-center justify-center"><GitCompare className="h-4 w-4" /></div>
                   <div>
                     <p className="text-sm font-semibold">Compare with earlier photo</p>
-                    <p className="text-xs text-muted-foreground">See what changed</p>
+                    <p className="text-xs text-muted-foreground">
+                      {compareCount > 0 ? `${compareCount} saved comparison${compareCount === 1 ? "" : "s"} · tap to view` : "See what changed"}
+                    </p>
                   </div>
                 </div>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />

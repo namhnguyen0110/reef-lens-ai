@@ -30,6 +30,15 @@ function ComparePage() {
   const [otherId, setOtherId] = useState<string>("");
   const [result, setResult] = useState<Comparison | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [history, setHistory] = useState<Array<{ id: string; summary: string; trend: Comparison["trend"]; changes: string[]; recommendations: string[]; created_at: string; photo_older_id: string; photo_newer_id: string }>>([]);
+
+  const loadHistory = async () => {
+    const { data } = await supabase.from("comparisons")
+      .select("id,summary,trend,changes,recommendations,created_at,photo_older_id,photo_newer_id")
+      .or(`photo_older_id.eq.${id},photo_newer_id.eq.${id}`)
+      .order("created_at", { ascending: false });
+    setHistory((data ?? []) as any);
+  };
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 
@@ -44,6 +53,7 @@ function ComparePage() {
         .order("created_at", { ascending: false }).limit(40);
       setCandidates(list ?? []);
       if (list?.[0]) setOtherId(list[0].id);
+      loadHistory();
     })();
   }, [id, session]);
 
@@ -65,6 +75,20 @@ function ComparePage() {
       });
       if (error) throw error;
       setResult(data.result);
+      // Persist to history
+      if (session?.user) {
+        await supabase.from("comparisons").insert({
+          user_id: session.user.id,
+          photo_older_id: older.id,
+          photo_newer_id: newer.id,
+          summary: data.result.summary,
+          trend: data.result.trend,
+          changes: data.result.changes ?? [],
+          recommendations: data.result.recommendations ?? [],
+          raw: data.result,
+        });
+        loadHistory();
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Compare failed");
     } finally { setAnalyzing(false); }
@@ -146,6 +170,43 @@ function ComparePage() {
               </div>
             )}
           </motion.div>
+        )}
+
+        {history.length > 0 && (
+          <div className="mt-6">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Past comparisons ({history.length})</p>
+            <div className="space-y-3">
+              {history.map(h => (
+                <div key={h.id} className="glass rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <TrendIcon trend={h.trend} />
+                      <span className="text-sm font-semibold">{h.trend}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-muted-foreground">{new Date(h.created_at).toLocaleString()}</span>
+                      <button
+                        onClick={async () => {
+                          if (!confirm("Delete this comparison?")) return;
+                          await supabase.from("comparisons").delete().eq("id", h.id);
+                          loadHistory();
+                        }}
+                        className="text-[10px] text-destructive"
+                      >Delete</button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{h.summary}</p>
+                  {h.changes.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {h.changes.map((c, i) => (
+                        <li key={i} className="text-xs text-muted-foreground flex gap-2"><span className="text-primary">•</span>{c}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </MobileShell>

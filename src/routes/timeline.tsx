@@ -96,9 +96,19 @@ function TimelinePage() {
   return (
     <MobileShell>
       <div className="px-5 pt-8 pb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
-        <p className="text-sm text-muted-foreground mt-1">Your reef, day by day.</p>
-
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Timeline</h1>
+            <p className="text-sm text-muted-foreground mt-1">Your reef, day by day.</p>
+          </div>
+          {selectMode ? (
+            <button onClick={exitSelect} className="text-xs glass rounded-full px-3 py-1.5 font-medium">Done</button>
+          ) : (
+            <button onClick={() => setSelectMode(true)} className="text-xs glass rounded-full px-3 py-1.5 font-medium flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Select
+            </button>
+          )}
+        </div>
         {/* Search */}
         <div className="mt-5 glass rounded-2xl px-4 py-3 flex items-center gap-2">
           <Search className="h-4 w-4 text-muted-foreground" />

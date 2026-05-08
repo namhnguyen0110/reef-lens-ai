@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settings2, History } from "lucide-react";
+import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settings2, History, Sparkle, Layers, Timer, X } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";

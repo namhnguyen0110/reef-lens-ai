@@ -46,7 +46,8 @@ function PhotoPage() {
 
   if (!photo) return <MobileShell><div className="p-8 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div></MobileShell>;
 
-  const isAnalyzing = photo.status === "pending" || photo.status === "analyzing";
+  const isPending = photo.status === "pending";
+  const isAnalyzing = photo.status === "analyzing";
   const isError = photo.status === "error";
   const sevColor = photo.severity === "Severe" ? "text-destructive" : photo.severity === "Moderate" ? "text-warning" : photo.severity === "Mild" ? "text-accent" : "text-success";
 
@@ -66,6 +67,25 @@ function PhotoPage() {
         </div>
 
         <div className="px-5 pb-8 -mt-10 relative">
+          {isPending && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="glass-strong rounded-3xl p-6 flex flex-col items-center text-center">
+              <div className="relative">
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl" />
+                <Sparkles className="h-10 w-10 text-primary relative" />
+              </div>
+              <p className="mt-3 font-semibold">Snapshot saved</p>
+              <p className="text-xs text-muted-foreground mt-1">Analysis will only run when you choose it.</p>
+              <button
+                onClick={() => supabase.functions.invoke("analyze-photo", { body: { photoId: photo.id } })}
+                className="mt-4 gradient-reef rounded-2xl px-4 py-2 text-sm font-semibold text-primary-foreground"
+              >Analyze this image</button>
+              <Link to="/compare/$id" params={{ id: photo.id }} className="mt-3 text-sm font-medium text-primary">
+                Manual compare
+              </Link>
+            </motion.div>
+          )}
+
           {isAnalyzing && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
               className="glass-strong rounded-3xl p-6 flex flex-col items-center text-center">

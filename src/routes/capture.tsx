@@ -82,10 +82,7 @@ function CapturePage() {
       }).select().single();
       if (error) throw error;
 
-      // Kick off analysis (don't await long)
-      supabase.functions.invoke("analyze-photo", { body: { photoId: photo.id } }).catch(console.error);
-
-      toast.success("Image saved. Analyzing…");
+      toast.success("Image saved");
       nav({ to: "/photo/$id", params: { id: photo.id } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -220,7 +217,7 @@ function CapturePage() {
               </div>
 
               <button onClick={upload} className="mt-6 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2">
-                <Sparkles className="h-4 w-4" /> Save & Analyze
+                <Sparkles className="h-4 w-4" /> Save snapshot
               </button>
             </motion.div>
           )}

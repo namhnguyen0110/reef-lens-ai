@@ -4,7 +4,7 @@ import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settin
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { mockLiveUrl, mockSnapshotUrl, INTERVAL_OPTIONS, isWithinWindow } from "@/lib/mock-camera";
+import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/$id")({

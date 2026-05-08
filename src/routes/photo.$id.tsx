@@ -112,6 +112,13 @@ function PhotoPage() {
               </div>
               <p className="mt-3 font-semibold">AI is analyzing your reef…</p>
               <p className="text-xs text-muted-foreground mt-1">Usually takes 10–20 seconds.</p>
+              <button
+                onClick={async () => {
+                  await supabase.from("photos").update({ status: "pending" }).eq("id", photo.id);
+                  toast.success("Analysis cancelled");
+                }}
+                className="mt-4 glass rounded-2xl px-4 py-2 text-xs font-medium text-muted-foreground"
+              >Cancel & reset</button>
             </motion.div>
           )}
 

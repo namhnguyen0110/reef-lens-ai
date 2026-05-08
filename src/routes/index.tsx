@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Camera, Image as ImageIcon, Plus, LogOut, Sparkles, Activity } from "lucide-react";
+import { Camera, Image as ImageIcon, Plus, LogOut, Sparkles, Activity, Video } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
@@ -97,6 +97,18 @@ function Index() {
           <StatCard icon={<Activity className="h-4 w-4" />} label="Analyses" value={String(totalDiagnosed)} />
           <StatCard icon={<Sparkles className="h-4 w-4" />} label="Issues spotted" value={String(issues)} accent />
         </div>
+
+        {/* Camera AI shortcut */}
+        <Link to="/cameras" className="mt-4 glass rounded-3xl p-4 flex items-center gap-3 active:scale-[0.99] transition">
+          <div className="h-11 w-11 rounded-2xl gradient-reef flex items-center justify-center">
+            <Video className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">Camera AI</p>
+            <p className="text-[11px] text-muted-foreground">Live view & scheduled change detection</p>
+          </div>
+          <Plus className="h-4 w-4 text-muted-foreground" />
+        </Link>
 
         {/* Tanks */}
         <div className="mt-7">

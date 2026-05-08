@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      cameras: {
+        Row: {
+          active_window_end: string | null
+          active_window_start: string | null
+          brand: string
+          connection_type: string
+          connection_url: string | null
+          created_at: string
+          id: string
+          last_snapshot_at: string | null
+          mock_seed: number
+          name: string
+          snapshot_interval_minutes: number
+          status: string
+          tank_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_window_end?: string | null
+          active_window_start?: string | null
+          brand?: string
+          connection_type?: string
+          connection_url?: string | null
+          created_at?: string
+          id?: string
+          last_snapshot_at?: string | null
+          mock_seed?: number
+          name: string
+          snapshot_interval_minutes?: number
+          status?: string
+          tank_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_window_end?: string | null
+          active_window_start?: string | null
+          brand?: string
+          connection_type?: string
+          connection_url?: string | null
+          created_at?: string
+          id?: string
+          last_snapshot_at?: string | null
+          mock_seed?: number
+          name?: string
+          snapshot_interval_minutes?: number
+          status?: string
+          tank_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       corals: {
         Row: {
           cover_photo_id: string | null
@@ -62,6 +116,8 @@ export type Database = {
         Row: {
           affected_area: string | null
           alternatives: Json | null
+          auto_captured: boolean
+          camera_id: string | null
           captured_at: string | null
           confidence: number | null
           coral_id: string | null
@@ -92,6 +148,8 @@ export type Database = {
         Insert: {
           affected_area?: string | null
           alternatives?: Json | null
+          auto_captured?: boolean
+          camera_id?: string | null
           captured_at?: string | null
           confidence?: number | null
           coral_id?: string | null
@@ -122,6 +180,8 @@ export type Database = {
         Update: {
           affected_area?: string | null
           alternatives?: Json | null
+          auto_captured?: boolean
+          camera_id?: string | null
           captured_at?: string | null
           confidence?: number | null
           coral_id?: string | null

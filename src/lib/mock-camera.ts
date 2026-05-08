@@ -1,19 +1,20 @@
 // Mock camera helper — returns a deterministic stock image URL that
 // "drifts" over time so scheduled snapshots look like a progressing tank.
 
-const POOL_SIZE = 12;
+// Real reef tank photos seeded into /public/seed — used as both the
+// snapshot frames AND poster previews for the looping video feed.
+const TANK_FRAMES = ["/seed/tank1.jpg", "/seed/tank2.jpg", "/seed/tank3.jpg", "/seed/tank4.jpg"];
+export const MOCK_LIVE_VIDEO = "/seed/tank-loop.mp4";
 
 export function mockSnapshotUrl(seed: number, at: Date = new Date()) {
-  // Slot changes every ~10 minutes so a fast schedule still shows variation.
-  const slot = Math.floor(at.getTime() / (10 * 60 * 1000)) % POOL_SIZE;
-  const tag = `reef-${seed}-${slot}`;
-  return `https://picsum.photos/seed/${tag}/1024/640`;
+  // Cycle through the real tank frames so the AI gets an analyzable image.
+  const slot = Math.floor(at.getTime() / (10 * 60 * 1000)) + seed;
+  return TANK_FRAMES[Math.abs(slot) % TANK_FRAMES.length];
 }
 
 export function mockLiveUrl(seed: number) {
-  // Live preview re-fetches every few seconds — append a cache-buster so
-  // the image element refreshes.
-  return `${mockSnapshotUrl(seed)}?t=${Math.floor(Date.now() / 4000)}`;
+  // For thumbnail previews where <video> isn't used.
+  return mockSnapshotUrl(seed);
 }
 
 export const CAMERA_BRANDS = [

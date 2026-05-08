@@ -25,14 +25,48 @@ function TimelinePage() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
-  useEffect(() => {
-    if (!session) return;
-    supabase.from("photos").select("id,image_url,diagnosis,severity,status,created_at,tags")
+  const reload = () => {
+    supabase.from("photos").select("id,image_url,storage_path,diagnosis,severity,status,created_at,tags")
       .order("created_at", { ascending: false }).limit(300)
-      .then(({ data }) => setPhotos(data ?? []));
-  }, [session]);
+      .then(({ data }) => setPhotos((data ?? []) as Photo[]));
+  };
+  useEffect(() => { if (session) reload(); }, [session]);
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const exitSelect = () => { setSelectMode(false); setSelected(new Set()); };
+
+  const deleteSelected = async () => {
+    if (selected.size === 0) return;
+    if (!confirm(`Delete ${selected.size} photo${selected.size > 1 ? "s" : ""}? This cannot be undone.`)) return;
+    setDeleting(true);
+    try {
+      const ids = Array.from(selected);
+      const paths = photos
+        .filter(p => ids.includes(p.id) && p.storage_path && !p.storage_path.startsWith("mock://"))
+        .map(p => p.storage_path!);
+      if (paths.length) await supabase.storage.from("tank-photos").remove(paths);
+      const { error } = await supabase.from("photos").delete().in("id", ids);
+      if (error) throw error;
+      toast.success(`Deleted ${ids.length} photo${ids.length > 1 ? "s" : ""}`);
+      exitSelect();
+      reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const allTags = useMemo(() => {
     const m = new Map<string, number>();

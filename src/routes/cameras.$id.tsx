@@ -152,8 +152,13 @@ function CameraDetail() {
 
         {tab === "live" && (
           <>
-            <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden">
-              <img key={tick} src={mockLiveUrl(cam.mock_seed)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden bg-black">
+              <video
+                src={MOCK_LIVE_VIDEO}
+                poster={mockLiveUrl(cam.mock_seed)}
+                autoPlay muted loop playsInline
+                className="absolute inset-0 h-full w-full object-cover"
+              />
               <div className="absolute top-3 left-3 glass-strong rounded-full px-2.5 py-1 text-[10px] flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" /> LIVE
               </div>

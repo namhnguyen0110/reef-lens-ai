@@ -58,7 +58,7 @@ function CameraDetail() {
     return () => clearInterval(i);
   }, []);
 
-  // Scheduler — runs while tab open. Real prod would run server-side via pg_cron.
+  // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
     if (!cam || !session) return;
     const i = setInterval(async () => {
@@ -72,33 +72,65 @@ function CameraDetail() {
     return () => clearInterval(i);
   }, [cam, session]);
 
-  const captureSnapshot = async (auto = false) => {
-    if (!cam || !session) return;
-    const at = new Date();
-    const url = mockSnapshotUrl(cam.mock_seed, at);
-    const path = `mock://${cam.id}/${at.getTime()}`;
-    const { data, error } = await supabase.from("photos").insert({
-      user_id: session.user.id,
-      tank_id: cam.tank_id,
-      camera_id: cam.id,
-      auto_captured: auto,
-      captured_at: at.toISOString(),
-      storage_path: path,
-      image_url: url,
-      status: "pending",
-      tags: auto ? ["auto", "camera"] : ["manual", "camera"],
-    }).select().single();
-    if (error) { toast.error(error.message); return; }
-    await supabase.from("cameras").update({ last_snapshot_at: at.toISOString() }).eq("id", cam.id);
+  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    const video = videoRef.current;
+    if (!video || video.readyState < 2) return null;
+    const w = video.videoWidth || 1280;
+    const h = video.videoHeight || 720;
+    const canvas = document.createElement("canvas");
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(video, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/jpeg", 0.85)!);
+    return { blob, dataUrl };
+  };
 
-    // Build comparison bundle (latest + 1m, 10m, 1h, yesterday) and analyze.
-    const bundle = await buildBundle(cam.id);
-    supabase.functions.invoke("analyze-photo", {
-      body: { photoId: data.id, comparisonPhotoIds: bundle },
-    }).catch(console.error);
-
-    if (!auto) toast.success("Snapshot captured · analyzing");
-    loadSnaps();
+  const captureSnapshot = async (auto = false): Promise<string | null> => {
+    if (!cam || !session) return null;
+    setCapturing(true);
+    try {
+      const at = new Date();
+      const frame = await grabFrameBlob();
+      let imageUrl: string;
+      let storagePath: string;
+      if (frame) {
+        storagePath = `${session.user.id}/${cam.id}/${at.getTime()}.jpg`;
+        const { error: upErr } = await supabase.storage.from("tank-photos").upload(storagePath, frame.blob, { contentType: "image/jpeg" });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from("tank-photos").getPublicUrl(storagePath);
+        imageUrl = pub.publicUrl;
+      } else {
+        // Fallback if video frame isn't ready
+        imageUrl = mockSnapshotUrl(cam.mock_seed, at);
+        storagePath = `mock://${cam.id}/${at.getTime()}`;
+      }
+      const { data, error } = await supabase.from("photos").insert({
+        user_id: session.user.id,
+        tank_id: cam.tank_id,
+        camera_id: cam.id,
+        auto_captured: auto,
+        captured_at: at.toISOString(),
+        storage_path: storagePath,
+        image_url: imageUrl,
+        status: "pending",
+        tags: auto ? ["auto", "camera"] : ["manual", "camera"],
+      }).select().single();
+      if (error) throw error;
+      await supabase.from("cameras").update({ last_snapshot_at: at.toISOString() }).eq("id", cam.id);
+      loadSnaps();
+      if (!auto) {
+        setPendingPhotoId(data.id);
+        toast.success("Snapshot captured");
+      }
+      return data.id;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Capture failed");
+      return null;
+    } finally {
+      setCapturing(false);
+    }
   };
 
   const buildBundle = async (cameraId: string): Promise<string[]> => {
@@ -116,6 +148,28 @@ function CameraDetail() {
       if (data?.[0]) ids.push(data[0].id);
     }
     return [...new Set(ids)];
+  };
+
+  const analyzeSingle = async () => {
+    if (!pendingPhotoId) return;
+    supabase.functions.invoke("analyze-photo", { body: { photoId: pendingPhotoId } }).catch(console.error);
+    toast.success("Analyzing image…");
+    nav({ to: "/photo/$id", params: { id: pendingPhotoId } });
+  };
+
+  const analyzeWithBundle = async () => {
+    if (!pendingPhotoId || !cam) return;
+    const bundle = await buildBundle(cam.id);
+    supabase.functions.invoke("analyze-photo", {
+      body: { photoId: pendingPhotoId, comparisonPhotoIds: bundle },
+    }).catch(console.error);
+    toast.success("Comparing against 1m / 10m / 1h / 1d / 1w…");
+    nav({ to: "/photo/$id", params: { id: pendingPhotoId } });
+  };
+
+  const manualCompare = () => {
+    if (!pendingPhotoId) return;
+    nav({ to: "/compare/$id", params: { id: pendingPhotoId } });
   };
 
   const updateSchedule = async (patch: Partial<Camera>) => {

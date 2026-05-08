@@ -102,8 +102,9 @@ function CameraDetail() {
         const { data: pub } = supabase.storage.from("tank-photos").getPublicUrl(storagePath);
         imageUrl = pub.publicUrl;
       } else {
-        // Fallback if video frame isn't ready
-        imageUrl = mockSnapshotUrl(cam.mock_seed, at);
+        // Fallback if video frame isn't ready — use absolute URL so the AI can fetch it.
+        const rel = mockSnapshotUrl(cam.mock_seed, at);
+        imageUrl = rel.startsWith("http") ? rel : `${window.location.origin}${rel}`;
         storagePath = `mock://${cam.id}/${at.getTime()}`;
       }
       const { data, error } = await supabase.from("photos").insert({
@@ -214,7 +215,7 @@ function CameraDetail() {
                 ref={videoRef}
                 src={MOCK_LIVE_VIDEO}
                 poster={mockLiveUrl(cam.mock_seed)}
-                autoPlay muted loop playsInline crossOrigin="anonymous"
+                autoPlay muted loop playsInline
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute top-3 left-3 glass-strong rounded-full px-2.5 py-1 text-[10px] flex items-center gap-1.5">

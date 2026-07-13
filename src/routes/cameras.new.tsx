@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2, Wifi, Check, ShieldAlert } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { CAMERA_BRANDS, INTERVAL_OPTIONS, dahuaCredsKey, dahuaSnapshotUrl } from "@/lib/mock-camera";
+import { CAMERA_BRANDS, INTERVAL_OPTIONS, dahuaCredsKey } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/new")({
@@ -45,25 +45,7 @@ function NewCameraPage() {
     setStep("testing");
 
     if (brand === "dahua") {
-      // Try to actually reach the snapshot endpoint via <img> load.
-      const reachable = await new Promise<boolean>((resolve) => {
-        const img = new Image();
-        const timer = window.setTimeout(() => resolve(false), 4000);
-        img.onload = () => { window.clearTimeout(timer); resolve(true); };
-        img.onerror = () => { window.clearTimeout(timer); resolve(false); };
-        img.src = dahuaSnapshotUrl(host, username, password) + `&_=${Date.now()}`;
-      });
-      if (!reachable) {
-        const isHttps = window.location.protocol === "https:";
-        toast.error(
-          isHttps
-            ? "Blocked by browser (mixed content). Click the lock icon → Site settings → Insecure content → Allow, then retry."
-            : "Couldn't reach camera. Check IP/creds and confirm this device is on the same Wi-Fi.",
-          { duration: 8000 },
-        );
-        setStep("creds");
-        return;
-      }
+      await new Promise((r) => setTimeout(r, 500));
     } else {
       await new Promise((r) => setTimeout(r, 1400));
     }
@@ -180,7 +162,7 @@ function NewCameraPage() {
               </div>
             </div>
             <button onClick={test} className="mt-6 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua">
-              {brand === "dahua" ? "Test & connect" : "Test connection"}
+              {brand === "dahua" ? "Save & open live view" : "Test connection"}
             </button>
           </>
         )}

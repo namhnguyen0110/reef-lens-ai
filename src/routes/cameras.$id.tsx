@@ -4,7 +4,7 @@ import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settin
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotUrl, dahuaCredsKey } from "@/lib/mock-camera";
+import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/$id")({
@@ -32,6 +32,8 @@ function CameraDetail() {
   const [, setTick] = useState(0);
   const [pendingPhotoId, setPendingPhotoId] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
+  const [dahuaSourceIndex, setDahuaSourceIndex] = useState(0);
+  const [dahuaLoadFailed, setDahuaLoadFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastAutoRef = useRef<number>(Date.now());
 
@@ -51,6 +53,7 @@ function CameraDetail() {
   };
 
   useEffect(() => { if (session) { loadCam(); loadSnaps(); } }, [session, id]);
+  useEffect(() => { setDahuaSourceIndex(0); setDahuaLoadFailed(false); }, [id]);
 
   // Live preview refresh tick
   useEffect(() => {
@@ -224,12 +227,37 @@ function CameraDetail() {
           const creds = isDahua ? (() => {
             try { const raw = localStorage.getItem(dahuaCredsKey(cam.id)); return raw ? JSON.parse(raw) as { host: string; username: string; password: string } : null; } catch { return null; }
           })() : null;
-          const dahuaSrc = creds ? `${dahuaSnapshotUrl(creds.host, creds.username, creds.password)}&_=${Math.floor(Date.now() / 2000)}` : null;
+          const dahuaCandidates = creds ? dahuaSnapshotCandidates(creds.host, creds.username, creds.password) : [];
+          const dahuaBaseSrc = dahuaCandidates[Math.min(dahuaSourceIndex, Math.max(dahuaCandidates.length - 1, 0))] ?? null;
+          const dahuaSrc = dahuaBaseSrc ? `${dahuaBaseSrc}&_=${Math.floor(Date.now() / 2000)}` : null;
           return (
           <>
             <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden bg-black">
               {isDahua && dahuaSrc ? (
-                <img src={dahuaSrc} alt="Dahua live" className="absolute inset-0 h-full w-full object-cover" />
+                <>
+                  <img
+                    key={dahuaSrc}
+                    src={dahuaSrc}
+                    alt="Dahua live"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    onLoad={() => setDahuaLoadFailed(false)}
+                    onError={() => {
+                      if (dahuaSourceIndex < dahuaCandidates.length - 1) {
+                        setDahuaSourceIndex((current) => current + 1);
+                      } else {
+                        setDahuaLoadFailed(true);
+                      }
+                    }}
+                  />
+                  {dahuaLoadFailed && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 text-xs text-white/80 px-6 text-center">
+                      <span>The app saved the camera, but the browser still cannot load the LAN snapshot.</span>
+                      <a href={dahuaCandidates[0]} target="_blank" rel="noreferrer" className="rounded-full bg-white/15 px-4 py-2 text-white">
+                        Open camera snapshot
+                      </a>
+                    </div>
+                  )}
+                </>
               ) : isDahua ? (
                 <div className="absolute inset-0 flex items-center justify-center text-xs text-white/70 px-6 text-center">
                   Camera credentials missing on this device. Re-add the camera to restore access.

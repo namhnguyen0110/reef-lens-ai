@@ -18,12 +18,24 @@ export function mockLiveUrl(seed: number) {
 }
 
 export const CAMERA_BRANDS = [
+  { id: "dahua", label: "Dahua (LAN)" },
   { id: "ezviz", label: "Ezviz" },
   { id: "imou", label: "Imou" },
   { id: "hikvision", label: "Hikvision" },
   { id: "rtsp", label: "RTSP / ONVIF" },
   { id: "mock", label: "Demo camera" },
 ] as const;
+
+// Dahua HTTP snapshot CGI endpoint. Basic auth creds in URL for <img> requests.
+export function dahuaSnapshotUrl(host: string, username: string, password: string, channel = 1) {
+  const cleanHost = host.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const cred = username ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@` : "";
+  return `http://${cred}${cleanHost}/cgi-bin/snapshot.cgi?channel=${channel}`;
+}
+
+export function dahuaCredsKey(cameraId: string) {
+  return `dahua:${cameraId}`;
+}
 
 export const INTERVAL_OPTIONS = [
   { value: 1, label: "Every 1 min" },

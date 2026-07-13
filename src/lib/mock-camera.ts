@@ -26,11 +26,24 @@ export const CAMERA_BRANDS = [
   { id: "mock", label: "Demo camera" },
 ] as const;
 
-// Dahua HTTP snapshot CGI endpoint. Basic auth creds in URL for <img> requests.
-export function dahuaSnapshotUrl(host: string, username: string, password: string, channel = 1) {
-  const cleanHost = host.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const cred = username ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@` : "";
+export function normalizeDahuaHost(host: string) {
+  return host.replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
+
+// Dahua HTTP snapshot CGI endpoint. Some Dahua units use the browser's logged-in
+// camera session instead of URL credentials, so callers can choose either mode.
+export function dahuaSnapshotUrl(host: string, username: string, password: string, channel = 1, includeCredentials = true) {
+  const cleanHost = normalizeDahuaHost(host);
+  const cred = includeCredentials && username ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@` : "";
   return `http://${cred}${cleanHost}/cgi-bin/snapshot.cgi?channel=${channel}`;
+}
+
+export function dahuaSnapshotCandidates(host: string, username: string, password: string, channel = 1) {
+  const cleanHost = host.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const direct = `http://${cleanHost}/cgi-bin/snapshot.cgi?channel=${channel}`;
+  const directSubtype = `${direct}&subtype=0`;
+  const credentialed = dahuaSnapshotUrl(host, username, password, channel, true);
+  return username ? [direct, directSubtype, credentialed] : [direct, directSubtype];
 }
 
 export function dahuaCredsKey(cameraId: string) {

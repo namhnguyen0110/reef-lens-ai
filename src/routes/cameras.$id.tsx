@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey, intervalLabel, intervalMs } from "@/lib/mock-camera";
 import { toast } from "sonner";
+import { CameraBridge, isNativeApp, base64JpegToBlob } from "@/lib/native-camera";
 
 export const Route = createFileRoute("/cameras/$id")({
   component: CameraDetail,
@@ -139,6 +140,25 @@ function CameraDetail() {
   };
 
   const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    // Inside the native mobile app: pull straight from the camera over LAN via
+    // digest-auth HTTP. Bypasses all browser CORS / mixed-content restrictions.
+    if (cam?.brand === "dahua" && isNativeApp()) {
+      try {
+        const raw = localStorage.getItem(dahuaCredsKey(cam.id));
+        if (raw) {
+          const creds = JSON.parse(raw) as { host: string; username: string; password: string };
+          const { base64 } = await CameraBridge.snapshot({
+            host: creds.host,
+            username: creds.username,
+            password: creds.password,
+            channel: 1,
+          });
+          if (base64) return base64JpegToBlob(base64);
+        }
+      } catch (e) {
+        console.warn("native snapshot failed, falling back to webview", e);
+      }
+    }
     if (cam?.brand === "dahua") {
       return grabFromImgEl(dahuaImgRef.current);
     }

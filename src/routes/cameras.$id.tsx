@@ -287,7 +287,7 @@ function CameraDetail() {
                     ref={dahuaImgRef}
                     src={dahuaSrc}
                     alt="Dahua live"
-                    crossOrigin="anonymous"
+                    className="absolute inset-0 h-full w-full object-cover"
                     className="absolute inset-0 h-full w-full object-cover"
                     onLoad={() => setDahuaLoadFailed(false)}
                     onError={() => {

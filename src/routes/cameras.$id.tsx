@@ -164,6 +164,8 @@ function CameraDetail() {
         if (upErr) throw upErr;
         const { data: pub } = supabase.storage.from("tank-photos").getPublicUrl(storagePath);
         imageUrl = pub.publicUrl;
+      } else if (cam.brand === "dahua") {
+        throw new Error("No frame captured. Enable screen capture and pick this browser tab.");
       } else {
         // Fallback if video frame isn't ready — use absolute URL so the AI can fetch it.
         const rel = mockSnapshotUrl(cam.mock_seed, at);

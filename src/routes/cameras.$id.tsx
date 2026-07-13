@@ -288,7 +288,6 @@ function CameraDetail() {
                     src={dahuaSrc}
                     alt="Dahua live"
                     className="absolute inset-0 h-full w-full object-cover"
-                    className="absolute inset-0 h-full w-full object-cover"
                     onLoad={() => setDahuaLoadFailed(false)}
                     onError={() => {
                       if (dahuaSourceIndex < dahuaCandidates.length - 1) {

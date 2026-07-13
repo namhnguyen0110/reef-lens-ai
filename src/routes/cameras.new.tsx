@@ -105,7 +105,7 @@ function NewCameraPage() {
                   <Wifi className="h-5 w-5 text-primary mb-2" />
                   <p className="font-semibold text-sm">{b.label}</p>
                   <p className="text-[11px] text-muted-foreground mt-1">
-                    {b.id === "rtsp" ? "rtsp:// or onvif://" : b.id === "mock" ? "Demo feed for testing" : "App pairing"}
+                    {b.id === "rtsp" ? "rtsp:// or onvif://" : b.id === "mock" ? "Demo feed for testing" : b.id === "dahua" ? "Local IP + snapshot" : "App pairing"}
                   </p>
                 </button>
               ))}

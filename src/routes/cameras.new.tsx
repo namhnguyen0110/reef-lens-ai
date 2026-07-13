@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, Wifi, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Wifi, Check, ShieldAlert } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { CAMERA_BRANDS } from "@/lib/mock-camera";
+import { CAMERA_BRANDS, INTERVAL_OPTIONS, dahuaCredsKey, dahuaSnapshotUrl } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/new")({

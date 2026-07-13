@@ -54,7 +54,13 @@ function NewCameraPage() {
         img.src = dahuaSnapshotUrl(host, username, password) + `&_=${Date.now()}`;
       });
       if (!reachable) {
-        toast.error("Couldn't reach camera. Check IP/creds — and open the app on the same Wi-Fi.");
+        const isHttps = window.location.protocol === "https:";
+        toast.error(
+          isHttps
+            ? "Blocked by browser (mixed content). Click the lock icon → Site settings → Insecure content → Allow, then retry."
+            : "Couldn't reach camera. Check IP/creds and confirm this device is on the same Wi-Fi.",
+          { duration: 8000 },
+        );
         setStep("creds");
         return;
       }

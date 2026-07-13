@@ -259,7 +259,7 @@ function CameraDetail() {
         </div>
 
         <h1 className="text-2xl font-bold tracking-tight">{cam.name}</h1>
-        <p className="text-xs text-muted-foreground capitalize">{cam.brand} · every {cam.snapshot_interval_minutes} min</p>
+        <p className="text-xs text-muted-foreground capitalize">{cam.brand} · {intervalLabel(cam.snapshot_interval_minutes).toLowerCase()}</p>
 
         {/* Tabs */}
         <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-3 text-xs font-medium">

@@ -66,22 +66,60 @@ function CameraDetail() {
 
   // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
-    if (!cam || !session || cam.brand === "dahua") return;
+    if (!cam || !session) return;
+    // Dahua auto capture requires an active screen-share stream.
+    if (cam.brand === "dahua" && !screenShareActive) return;
+    const tickMs = cam.snapshot_interval_minutes === 0 ? 3000 : 15000;
     const i = setInterval(async () => {
       const now = Date.now();
-      const intervalMs = cam.snapshot_interval_minutes * 60 * 1000;
-      if (now - lastAutoRef.current < intervalMs) return;
+      if (now - lastAutoRef.current < intervalMs(cam.snapshot_interval_minutes)) return;
       if (!isWithinWindow(new Date(), cam.active_window_start, cam.active_window_end)) return;
       lastAutoRef.current = now;
       await captureSnapshot(true);
-    }, 15000);
+    }, tickMs);
     return () => clearInterval(i);
-  }, [cam, session]);
+  }, [cam, session, screenShareActive]);
 
-  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
-    const video = videoRef.current;
+  // Stop screen share on unmount / tab change.
+  useEffect(() => {
+    return () => {
+      shareStreamRef.current?.getTracks().forEach((t) => t.stop());
+      shareStreamRef.current = null;
+    };
+  }, []);
+
+  const startScreenShare = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      shareStreamRef.current = stream;
+      const v = document.createElement("video");
+      v.srcObject = stream;
+      v.muted = true;
+      v.playsInline = true;
+      await v.play();
+      shareVideoRef.current = v;
+      stream.getVideoTracks()[0].addEventListener("ended", () => {
+        shareStreamRef.current = null;
+        shareVideoRef.current = null;
+        setScreenShareActive(false);
+        toast.message("Screen share stopped");
+      });
+      setScreenShareActive(true);
+      toast.success("Screen capture ready — pick this tab to share the live view.");
+    } catch {
+      toast.error("Screen share cancelled");
+    }
+  };
+
+  const stopScreenShare = () => {
+    shareStreamRef.current?.getTracks().forEach((t) => t.stop());
+    shareStreamRef.current = null;
+    shareVideoRef.current = null;
+    setScreenShareActive(false);
+  };
+
+  const grabFromVideoEl = async (video: HTMLVideoElement | null): Promise<{ blob: Blob; dataUrl: string } | null> => {
     if (!video) return null;
-    // Wait up to ~2.5s for the video to have a decoded frame ready.
     for (let i = 0; i < 25 && video.readyState < 2; i++) {
       await new Promise((r) => setTimeout(r, 100));
     }
@@ -99,9 +137,17 @@ function CameraDetail() {
       if (!blob) return null;
       return { blob, dataUrl };
     } catch {
-      // Tainted canvas (cross-origin) — fall back.
       return null;
     }
+  };
+
+  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    // Prefer the shared screen (Dahua path) if active; otherwise the local video.
+    if (shareVideoRef.current) {
+      const shot = await grabFromVideoEl(shareVideoRef.current);
+      if (shot) return shot;
+    }
+    return grabFromVideoEl(videoRef.current);
   };
 
   const captureSnapshot = async (auto = false): Promise<string | null> => {

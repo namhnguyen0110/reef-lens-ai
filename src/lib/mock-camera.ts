@@ -50,7 +50,10 @@ export function dahuaCredsKey(cameraId: string) {
   return `dahua:${cameraId}`;
 }
 
+// value=0 is a sentinel that means "every 10 seconds"; kept as an int so no
+// schema migration is required on the cameras.snapshot_interval_minutes column.
 export const INTERVAL_OPTIONS = [
+  { value: 0, label: "Every 10 sec" },
   { value: 1, label: "Every 1 min" },
   { value: 5, label: "Every 5 min" },
   { value: 10, label: "Every 10 min" },
@@ -58,6 +61,14 @@ export const INTERVAL_OPTIONS = [
   { value: 60, label: "Every hour" },
   { value: 1440, label: "Daily" },
 ];
+
+export function intervalLabel(value: number) {
+  return INTERVAL_OPTIONS.find((o) => o.value === value)?.label ?? `Every ${value} min`;
+}
+
+export function intervalMs(value: number) {
+  return value === 0 ? 10_000 : value * 60_000;
+}
 
 export function isWithinWindow(now: Date, start?: string | null, end?: string | null) {
   if (!start || !end) return true;

@@ -320,22 +320,13 @@ function CameraDetail() {
               </div>
             </div>
             {isDahua && (
-              <div className="mt-3 glass rounded-2xl p-3 text-[11px] text-muted-foreground space-y-2">
-                <p>Browsers can't read the LAN camera image directly. Share this browser tab once, and the app will screenshot the live view for every capture — manual and scheduled.</p>
-                {screenShareActive ? (
-                  <button onClick={stopScreenShare} className="w-full rounded-xl bg-destructive/20 text-destructive py-2 text-xs font-medium">
-                    Stop screen capture
-                  </button>
-                ) : (
-                  <button onClick={startScreenShare} className="w-full rounded-xl bg-primary/20 text-primary py-2 text-xs font-medium">
-                    Enable screen capture
-                  </button>
-                )}
-              </div>
+              <p className="mt-3 text-[11px] text-muted-foreground px-1">
+                Snapshots the live view above every {intervalLabel(cam.snapshot_interval_minutes).toLowerCase()} and saves it to the timeline.
+              </p>
             )}
-            <button onClick={() => captureSnapshot(false)} disabled={capturing || (isDahua && !screenShareActive)}
+            <button onClick={() => captureSnapshot(false)} disabled={capturing}
               className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-40">
-              <CameraIcon className="h-4 w-4" /> {isDahua && !screenShareActive ? "Enable screen capture first" : capturing ? "Capturing…" : "Capture snapshot"}
+              <CameraIcon className="h-4 w-4" /> {capturing ? "Capturing…" : "Capture snapshot"}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/timeline" className="glass rounded-2xl py-3 text-center text-sm font-medium flex items-center justify-center gap-2">

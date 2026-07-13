@@ -36,6 +36,9 @@ function CameraDetail() {
   const [dahuaLoadFailed, setDahuaLoadFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastAutoRef = useRef<number>(Date.now());
+  const shareStreamRef = useRef<MediaStream | null>(null);
+  const shareVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [screenShareActive, setScreenShareActive] = useState(false);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 

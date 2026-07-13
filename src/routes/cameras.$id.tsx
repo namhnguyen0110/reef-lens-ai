@@ -60,7 +60,7 @@ function CameraDetail() {
 
   // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
-    if (!cam || !session) return;
+    if (!cam || !session || cam.brand === "dahua") return;
     const i = setInterval(async () => {
       const now = Date.now();
       const intervalMs = cam.snapshot_interval_minutes * 60 * 1000;

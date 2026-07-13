@@ -21,6 +21,10 @@ function NewCameraPage() {
   const [brand, setBrand] = useState<string>("mock");
   const [name, setName] = useState("Reef Cam");
   const [url, setUrl] = useState("");
+  const [host, setHost] = useState("192.168.1.213");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
+  const [interval, setInterval] = useState<number>(5);
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [tankId, setTankId] = useState<string>("");
 
@@ -34,21 +38,49 @@ function NewCameraPage() {
   }, [session]);
 
   const test = async () => {
+    if (brand === "dahua" && (!host || !username || !password)) {
+      toast.error("Enter IP, username, and password");
+      return;
+    }
     setStep("testing");
-    // Simulate connection test.
-    await new Promise((r) => setTimeout(r, 1400));
+
+    if (brand === "dahua") {
+      // Try to actually reach the snapshot endpoint via <img> load.
+      const reachable = await new Promise<boolean>((resolve) => {
+        const img = new Image();
+        const timer = window.setTimeout(() => resolve(false), 4000);
+        img.onload = () => { window.clearTimeout(timer); resolve(true); };
+        img.onerror = () => { window.clearTimeout(timer); resolve(false); };
+        img.src = dahuaSnapshotUrl(host, username, password) + `&_=${Date.now()}`;
+      });
+      if (!reachable) {
+        toast.error("Couldn't reach camera. Check IP/creds — and open the app on the same Wi-Fi.");
+        setStep("creds");
+        return;
+      }
+    } else {
+      await new Promise((r) => setTimeout(r, 1400));
+    }
+
     const seed = Math.floor(Math.random() * 1000);
     const { data, error } = await supabase.from("cameras").insert({
       user_id: session!.user.id,
       tank_id: tankId || null,
       name,
       brand,
-      connection_type: brand === "rtsp" ? "rtsp" : "mock",
-      connection_url: url || null,
+      connection_type: brand === "rtsp" ? "rtsp" : brand === "dahua" ? "http-snapshot" : "mock",
+      connection_url: brand === "dahua" ? `http://${host}` : (url || null),
       mock_seed: seed,
+      snapshot_interval_minutes: interval,
       status: "online",
     }).select().single();
     if (error) { toast.error(error.message); setStep("creds"); return; }
+
+    if (brand === "dahua") {
+      // Creds stay on this device only — never sent to the server.
+      localStorage.setItem(dahuaCredsKey(data.id), JSON.stringify({ host, username, password }));
+    }
+
     setStep("success");
     setTimeout(() => nav({ to: "/cameras/$id", params: { id: data.id } }), 900);
   };

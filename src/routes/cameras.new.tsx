@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, Wifi, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Wifi, Check, ShieldAlert } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { CAMERA_BRANDS } from "@/lib/mock-camera";
+import { CAMERA_BRANDS, INTERVAL_OPTIONS, dahuaCredsKey, dahuaSnapshotUrl } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/new")({
@@ -21,6 +21,10 @@ function NewCameraPage() {
   const [brand, setBrand] = useState<string>("mock");
   const [name, setName] = useState("Reef Cam");
   const [url, setUrl] = useState("");
+  const [host, setHost] = useState("192.168.1.213");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("");
+  const [interval, setInterval] = useState<number>(5);
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [tankId, setTankId] = useState<string>("");
 
@@ -34,21 +38,49 @@ function NewCameraPage() {
   }, [session]);
 
   const test = async () => {
+    if (brand === "dahua" && (!host || !username || !password)) {
+      toast.error("Enter IP, username, and password");
+      return;
+    }
     setStep("testing");
-    // Simulate connection test.
-    await new Promise((r) => setTimeout(r, 1400));
+
+    if (brand === "dahua") {
+      // Try to actually reach the snapshot endpoint via <img> load.
+      const reachable = await new Promise<boolean>((resolve) => {
+        const img = new Image();
+        const timer = window.setTimeout(() => resolve(false), 4000);
+        img.onload = () => { window.clearTimeout(timer); resolve(true); };
+        img.onerror = () => { window.clearTimeout(timer); resolve(false); };
+        img.src = dahuaSnapshotUrl(host, username, password) + `&_=${Date.now()}`;
+      });
+      if (!reachable) {
+        toast.error("Couldn't reach camera. Check IP/creds — and open the app on the same Wi-Fi.");
+        setStep("creds");
+        return;
+      }
+    } else {
+      await new Promise((r) => setTimeout(r, 1400));
+    }
+
     const seed = Math.floor(Math.random() * 1000);
     const { data, error } = await supabase.from("cameras").insert({
       user_id: session!.user.id,
       tank_id: tankId || null,
       name,
       brand,
-      connection_type: brand === "rtsp" ? "rtsp" : "mock",
-      connection_url: url || null,
+      connection_type: brand === "rtsp" ? "rtsp" : brand === "dahua" ? "http-snapshot" : "mock",
+      connection_url: brand === "dahua" ? `http://${host}` : (url || null),
       mock_seed: seed,
+      snapshot_interval_minutes: interval,
       status: "online",
     }).select().single();
     if (error) { toast.error(error.message); setStep("creds"); return; }
+
+    if (brand === "dahua") {
+      // Creds stay on this device only — never sent to the server.
+      localStorage.setItem(dahuaCredsKey(data.id), JSON.stringify({ host, username, password }));
+    }
+
     setStep("success");
     setTimeout(() => nav({ to: "/cameras/$id", params: { id: data.id } }), 900);
   };
@@ -73,7 +105,7 @@ function NewCameraPage() {
                   <Wifi className="h-5 w-5 text-primary mb-2" />
                   <p className="font-semibold text-sm">{b.label}</p>
                   <p className="text-[11px] text-muted-foreground mt-1">
-                    {b.id === "rtsp" ? "rtsp:// or onvif://" : b.id === "mock" ? "Demo feed for testing" : "App pairing"}
+                    {b.id === "rtsp" ? "rtsp:// or onvif://" : b.id === "mock" ? "Demo feed for testing" : b.id === "dahua" ? "Local IP + snapshot" : "App pairing"}
                   </p>
                 </button>
               ))}
@@ -90,7 +122,31 @@ function NewCameraPage() {
                 <input value={name} onChange={(e) => setName(e.target.value)}
                   className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm" />
               </div>
-              {brand === "rtsp" ? (
+              {brand === "dahua" ? (
+                <>
+                  <div className="glass rounded-2xl p-3 text-xs text-muted-foreground flex gap-2">
+                    <ShieldAlert className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                    <span>LAN mode: works only when this device is on the same Wi-Fi as the camera. Credentials stay on this device — never sent to our servers. If the app is loaded over https, your browser may block http LAN calls.</span>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Camera IP / host</label>
+                    <input value={host} onChange={(e) => setHost(e.target.value)} placeholder="192.168.1.213"
+                      className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-muted-foreground">Username</label>
+                      <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="admin"
+                        className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-muted-foreground">Password</label>
+                      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••"
+                        className="mt-1 w-full bg-input border border-border rounded-2xl px-4 py-3 text-sm" />
+                    </div>
+                  </div>
+                </>
+              ) : brand === "rtsp" ? (
                 <div>
                   <label className="text-xs text-muted-foreground">Stream URL</label>
                   <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="rtsp://user:pass@192.168.1.50/stream"
@@ -102,6 +158,13 @@ function NewCameraPage() {
                 </div>
               )}
               <div>
+                <label className="text-xs text-muted-foreground">Snapshot interval</label>
+                <select value={interval} onChange={(e) => setInterval(Number(e.target.value))}
+                  className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm">
+                  {INTERVAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="text-xs text-muted-foreground">Assign to tank</label>
                 <select value={tankId} onChange={(e) => setTankId(e.target.value)}
                   className="mt-1 w-full bg-input border border-border rounded-2xl px-3 py-3 text-sm">
@@ -111,7 +174,7 @@ function NewCameraPage() {
               </div>
             </div>
             <button onClick={test} className="mt-6 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua">
-              Test connection
+              {brand === "dahua" ? "Test & connect" : "Test connection"}
             </button>
           </>
         )}

@@ -4,7 +4,7 @@ import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settin
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow } from "@/lib/mock-camera";
+import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotUrl, dahuaCredsKey } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/$id")({
@@ -60,7 +60,7 @@ function CameraDetail() {
 
   // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
-    if (!cam || !session) return;
+    if (!cam || !session || cam.brand === "dahua") return;
     const i = setInterval(async () => {
       const now = Date.now();
       const intervalMs = cam.snapshot_interval_minutes * 60 * 1000;
@@ -219,23 +219,37 @@ function CameraDetail() {
           ))}
         </div>
 
-        {tab === "live" && (
+        {tab === "live" && (() => {
+          const isDahua = cam.brand === "dahua";
+          const creds = isDahua ? (() => {
+            try { const raw = localStorage.getItem(dahuaCredsKey(cam.id)); return raw ? JSON.parse(raw) as { host: string; username: string; password: string } : null; } catch { return null; }
+          })() : null;
+          const dahuaSrc = creds ? `${dahuaSnapshotUrl(creds.host, creds.username, creds.password)}&_=${Math.floor(Date.now() / 2000)}` : null;
+          return (
           <>
             <div className="mt-4 relative aspect-[16/10] rounded-3xl overflow-hidden bg-black">
-              <video
-                ref={videoRef}
-                src={MOCK_LIVE_VIDEO}
-                poster={mockLiveUrl(cam.mock_seed)}
-                autoPlay muted loop playsInline
-                className="absolute inset-0 h-full w-full object-cover"
-              />
+              {isDahua && dahuaSrc ? (
+                <img src={dahuaSrc} alt="Dahua live" className="absolute inset-0 h-full w-full object-cover" />
+              ) : isDahua ? (
+                <div className="absolute inset-0 flex items-center justify-center text-xs text-white/70 px-6 text-center">
+                  Camera credentials missing on this device. Re-add the camera to restore access.
+                </div>
+              ) : (
+                <video ref={videoRef} src={MOCK_LIVE_VIDEO} poster={mockLiveUrl(cam.mock_seed)}
+                  autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover" />
+              )}
               <div className="absolute top-3 left-3 glass-strong rounded-full px-2.5 py-1 text-[10px] flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" /> LIVE
               </div>
             </div>
-            <button onClick={() => captureSnapshot(false)} disabled={capturing}
-              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-60">
-              <CameraIcon className="h-4 w-4" /> {capturing ? "Capturing…" : "Capture snapshot"}
+            {isDahua && (
+              <div className="mt-3 glass rounded-2xl p-3 text-[11px] text-muted-foreground">
+                LAN preview only. To save snapshots for AI analysis, switch to the tunnel option — browsers can't upload images from cross-origin LAN cameras.
+              </div>
+            )}
+            <button onClick={() => captureSnapshot(false)} disabled={capturing || isDahua}
+              className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-40">
+              <CameraIcon className="h-4 w-4" /> {isDahua ? "Capture unavailable in LAN mode" : capturing ? "Capturing…" : "Capture snapshot"}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/timeline" className="glass rounded-2xl py-3 text-center text-sm font-medium flex items-center justify-center gap-2">
@@ -246,7 +260,8 @@ function CameraDetail() {
               </button>
             </div>
           </>
-        )}
+          );
+        })()}
 
         {tab === "schedule" && (
           <div className="mt-5 space-y-4">

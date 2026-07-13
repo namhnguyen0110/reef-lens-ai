@@ -4,7 +4,7 @@ import { ArrowLeft, Camera as CameraIcon, Clock, Sparkles, Wifi, WifiOff, Settin
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
-import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey } from "@/lib/mock-camera";
+import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey, intervalLabel, intervalMs } from "@/lib/mock-camera";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/cameras/$id")({
@@ -36,6 +36,9 @@ function CameraDetail() {
   const [dahuaLoadFailed, setDahuaLoadFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastAutoRef = useRef<number>(Date.now());
+  const shareStreamRef = useRef<MediaStream | null>(null);
+  const shareVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [screenShareActive, setScreenShareActive] = useState(false);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 
@@ -63,22 +66,60 @@ function CameraDetail() {
 
   // Scheduler — captures only; user decides whether to analyze.
   useEffect(() => {
-    if (!cam || !session || cam.brand === "dahua") return;
+    if (!cam || !session) return;
+    // Dahua auto capture requires an active screen-share stream.
+    if (cam.brand === "dahua" && !screenShareActive) return;
+    const tickMs = cam.snapshot_interval_minutes === 0 ? 3000 : 15000;
     const i = setInterval(async () => {
       const now = Date.now();
-      const intervalMs = cam.snapshot_interval_minutes * 60 * 1000;
-      if (now - lastAutoRef.current < intervalMs) return;
+      if (now - lastAutoRef.current < intervalMs(cam.snapshot_interval_minutes)) return;
       if (!isWithinWindow(new Date(), cam.active_window_start, cam.active_window_end)) return;
       lastAutoRef.current = now;
       await captureSnapshot(true);
-    }, 15000);
+    }, tickMs);
     return () => clearInterval(i);
-  }, [cam, session]);
+  }, [cam, session, screenShareActive]);
 
-  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
-    const video = videoRef.current;
+  // Stop screen share on unmount / tab change.
+  useEffect(() => {
+    return () => {
+      shareStreamRef.current?.getTracks().forEach((t) => t.stop());
+      shareStreamRef.current = null;
+    };
+  }, []);
+
+  const startScreenShare = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      shareStreamRef.current = stream;
+      const v = document.createElement("video");
+      v.srcObject = stream;
+      v.muted = true;
+      v.playsInline = true;
+      await v.play();
+      shareVideoRef.current = v;
+      stream.getVideoTracks()[0].addEventListener("ended", () => {
+        shareStreamRef.current = null;
+        shareVideoRef.current = null;
+        setScreenShareActive(false);
+        toast.message("Screen share stopped");
+      });
+      setScreenShareActive(true);
+      toast.success("Screen capture ready — pick this tab to share the live view.");
+    } catch {
+      toast.error("Screen share cancelled");
+    }
+  };
+
+  const stopScreenShare = () => {
+    shareStreamRef.current?.getTracks().forEach((t) => t.stop());
+    shareStreamRef.current = null;
+    shareVideoRef.current = null;
+    setScreenShareActive(false);
+  };
+
+  const grabFromVideoEl = async (video: HTMLVideoElement | null): Promise<{ blob: Blob; dataUrl: string } | null> => {
     if (!video) return null;
-    // Wait up to ~2.5s for the video to have a decoded frame ready.
     for (let i = 0; i < 25 && video.readyState < 2; i++) {
       await new Promise((r) => setTimeout(r, 100));
     }
@@ -96,9 +137,17 @@ function CameraDetail() {
       if (!blob) return null;
       return { blob, dataUrl };
     } catch {
-      // Tainted canvas (cross-origin) — fall back.
       return null;
     }
+  };
+
+  const grabFrameBlob = async (): Promise<{ blob: Blob; dataUrl: string } | null> => {
+    // Prefer the shared screen (Dahua path) if active; otherwise the local video.
+    if (shareVideoRef.current) {
+      const shot = await grabFromVideoEl(shareVideoRef.current);
+      if (shot) return shot;
+    }
+    return grabFromVideoEl(videoRef.current);
   };
 
   const captureSnapshot = async (auto = false): Promise<string | null> => {
@@ -115,6 +164,8 @@ function CameraDetail() {
         if (upErr) throw upErr;
         const { data: pub } = supabase.storage.from("tank-photos").getPublicUrl(storagePath);
         imageUrl = pub.publicUrl;
+      } else if (cam.brand === "dahua") {
+        throw new Error("No frame captured. Enable screen capture and pick this browser tab.");
       } else {
         // Fallback if video frame isn't ready — use absolute URL so the AI can fetch it.
         const rel = mockSnapshotUrl(cam.mock_seed, at);
@@ -210,7 +261,7 @@ function CameraDetail() {
         </div>
 
         <h1 className="text-2xl font-bold tracking-tight">{cam.name}</h1>
-        <p className="text-xs text-muted-foreground capitalize">{cam.brand} · every {cam.snapshot_interval_minutes} min</p>
+        <p className="text-xs text-muted-foreground capitalize">{cam.brand} · {intervalLabel(cam.snapshot_interval_minutes).toLowerCase()}</p>
 
         {/* Tabs */}
         <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-3 text-xs font-medium">
@@ -271,13 +322,22 @@ function CameraDetail() {
               </div>
             </div>
             {isDahua && (
-              <div className="mt-3 glass rounded-2xl p-3 text-[11px] text-muted-foreground">
-                LAN preview only. To save snapshots for AI analysis, switch to the tunnel option — browsers can't upload images from cross-origin LAN cameras.
+              <div className="mt-3 glass rounded-2xl p-3 text-[11px] text-muted-foreground space-y-2">
+                <p>Browsers can't read the LAN camera image directly. Share this browser tab once, and the app will screenshot the live view for every capture — manual and scheduled.</p>
+                {screenShareActive ? (
+                  <button onClick={stopScreenShare} className="w-full rounded-xl bg-destructive/20 text-destructive py-2 text-xs font-medium">
+                    Stop screen capture
+                  </button>
+                ) : (
+                  <button onClick={startScreenShare} className="w-full rounded-xl bg-primary/20 text-primary py-2 text-xs font-medium">
+                    Enable screen capture
+                  </button>
+                )}
               </div>
             )}
-            <button onClick={() => captureSnapshot(false)} disabled={capturing || isDahua}
+            <button onClick={() => captureSnapshot(false)} disabled={capturing || (isDahua && !screenShareActive)}
               className="mt-4 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2 disabled:opacity-40">
-              <CameraIcon className="h-4 w-4" /> {isDahua ? "Capture unavailable in LAN mode" : capturing ? "Capturing…" : "Capture snapshot"}
+              <CameraIcon className="h-4 w-4" /> {isDahua && !screenShareActive ? "Enable screen capture first" : capturing ? "Capturing…" : "Capture snapshot"}
             </button>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Link to="/timeline" className="glass rounded-2xl py-3 text-center text-sm font-medium flex items-center justify-center gap-2">

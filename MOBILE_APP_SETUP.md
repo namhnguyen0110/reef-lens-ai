@@ -383,7 +383,7 @@ username/password. The Capture button will now call `CameraBridge.snapshot`
 natively, upload the JPEG to Lovable Cloud, and add it to the timeline —
 exactly like the web flow but without CORS.
 
-## 5. RTSP live preview (optional, later)
+## 6. RTSP live preview (optional, later)
 
 The plugin has `startRtsp` / `stopRtsp` stubs. To render a moving picture,
 inflate a `VLCVideoView` (iOS) or `PlayerView` (Android) into the Capacitor

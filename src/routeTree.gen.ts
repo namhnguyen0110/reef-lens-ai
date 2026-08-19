@@ -22,6 +22,7 @@ import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
 import { Route as CamerasNewRouteImport } from './routes/cameras.new'
 import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
+import { Route as ApiPublicBridgeClaimRouteImport } from './routes/api/public/bridge/claim'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -88,6 +89,11 @@ const CamerasIdRoute = CamerasIdRouteImport.update({
   path: '/cameras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBridgeClaimRoute = ApiPublicBridgeClaimRouteImport.update({
+  id: '/api/public/bridge/claim',
+  path: '/api/public/bridge/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/photo/$id': typeof PhotoIdRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/photo/$id': typeof PhotoIdRoute
   '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/photo/$id': typeof PhotoIdRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/photo/$id'
     | '/cameras/'
     | '/corals/'
+    | '/api/public/bridge/claim'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/photo/$id'
     | '/cameras'
     | '/corals'
+    | '/api/public/bridge/claim'
   id:
     | '__root__'
     | '/'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/photo/$id'
     | '/cameras/'
     | '/corals/'
+    | '/api/public/bridge/claim'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   PhotoIdRoute: typeof PhotoIdRoute
   CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
+  ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CamerasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bridge/claim': {
+      id: '/api/public/bridge/claim'
+      path: '/api/public/bridge/claim'
+      fullPath: '/api/public/bridge/claim'
+      preLoaderRoute: typeof ApiPublicBridgeClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   PhotoIdRoute: PhotoIdRoute,
   CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
+  ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

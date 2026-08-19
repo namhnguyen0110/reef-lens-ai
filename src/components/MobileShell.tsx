@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Camera, Clock, Shell, Video } from "lucide-react";
+import { Home, Camera, Clock, Shell, Video, Workflow } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 

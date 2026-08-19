@@ -28,6 +28,7 @@ function BottomNav() {
     { to: "/", icon: Home, label: "Home" },
     { to: "/corals", icon: Shell, label: "Corals" },
     { to: "/cameras", icon: Video, label: "Cameras" },
+    { to: "/automations", icon: Workflow, label: "Auto" },
     { to: "/capture", icon: Camera, label: "Capture" },
     { to: "/timeline", icon: Clock, label: "Timeline" },
   ];

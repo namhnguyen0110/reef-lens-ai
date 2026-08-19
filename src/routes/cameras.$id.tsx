@@ -359,6 +359,8 @@ function CameraDetail() {
           );
         })()}
 
+        {tab === "presets" && <CameraPresetsPanel cameraId={cam.id} />}
+
         {tab === "schedule" && (
           <div className="mt-5 space-y-4">
             <div className="glass rounded-3xl p-4">

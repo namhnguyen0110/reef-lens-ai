@@ -280,8 +280,8 @@ function CameraDetail() {
         <p className="text-xs text-muted-foreground capitalize">{cam.brand} · {intervalLabel(cam.snapshot_interval_minutes).toLowerCase()}</p>
 
         {/* Tabs */}
-        <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-3 text-xs font-medium">
-          {(["live", "schedule", "timeline"] as const).map((t) => (
+        <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-4 text-[11px] font-medium">
+          {(["live", "presets", "schedule", "timeline"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`py-2 rounded-xl capitalize transition ${tab === t ? "gradient-reef text-primary-foreground" : "text-muted-foreground"}`}>
               {t}

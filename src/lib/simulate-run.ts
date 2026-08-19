@@ -41,22 +41,34 @@ export async function simulateWorkflow(opts: {
   let currentAreaId: string | null = null;
   let pending: string[] = [];
   let failure: string | null = null;
+  let currentPosition = 0;
 
+  const rowIds = new Map<number, string>();
   const mark = async (position: number, type: string, status: string, detail?: string, extra?: Record<string, unknown>) => {
-    await supabase.from("workflow_run_steps").upsert(
-      {
+    const patch = {
+      status,
+      detail: detail ?? null,
+      finished_at: status === "running" ? null : new Date().toISOString(),
+      ...extra,
+    };
+    const existing = rowIds.get(position);
+    if (existing) {
+      await supabase.from("workflow_run_steps").update(patch).eq("id", existing);
+      return;
+    }
+    const { data } = await supabase
+      .from("workflow_run_steps")
+      .insert({
         user_id: userId,
         run_id: run.id,
         position,
         type,
-        status,
-        detail: detail ?? null,
         started_at: new Date().toISOString(),
-        finished_at: status === "running" ? null : new Date().toISOString(),
-        ...extra,
-      },
-      { onConflict: "run_id,position" },
-    );
+        ...patch,
+      })
+      .select("id")
+      .single();
+    if (data) rowIds.set(position, data.id);
   };
 
   const uploadFrame = async (areaId: string | null, index: number) => {
@@ -87,6 +99,7 @@ export async function simulateWorkflow(opts: {
   try {
     for (const step of steps) {
       const cfg = step.config ?? {};
+      currentPosition = step.position;
       await mark(step.position, step.type, "running");
       onProgress?.({ position: step.position, label: step.type, status: "running" });
 
@@ -174,8 +187,11 @@ export async function simulateWorkflow(opts: {
     }
   } catch (e) {
     failure = e instanceof Error ? e.message : "Simulation failed";
-    const failedStep = steps.find((s) => s.position >= 0);
-    if (failedStep) onProgress?.({ position: failedStep.position, label: failedStep.type, status: "failed", detail: failure });
+    const failedStep = steps.find((s) => s.position === currentPosition);
+    if (failedStep) {
+      await mark(failedStep.position, failedStep.type, "failed", failure);
+      onProgress?.({ position: failedStep.position, label: failedStep.type, status: "failed", detail: failure });
+    }
   }
 
   await supabase

@@ -22,6 +22,7 @@ import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
 import { Route as CamerasNewRouteImport } from './routes/cameras.new'
 import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
+import { Route as ApiPublicBridgeStepRouteImport } from './routes/api/public/bridge/step'
 import { Route as ApiPublicBridgePresetsRouteImport } from './routes/api/public/bridge/presets'
 import { Route as ApiPublicBridgeIngestRouteImport } from './routes/api/public/bridge/ingest'
 import { Route as ApiPublicBridgeClaimRouteImport } from './routes/api/public/bridge/claim'
@@ -91,6 +92,11 @@ const CamerasIdRoute = CamerasIdRouteImport.update({
   path: '/cameras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBridgeStepRoute = ApiPublicBridgeStepRouteImport.update({
+  id: '/api/public/bridge/step',
+  path: '/api/public/bridge/step',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBridgePresetsRoute = ApiPublicBridgePresetsRouteImport.update({
   id: '/api/public/bridge/presets',
   path: '/api/public/bridge/presets',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/api/public/bridge/claim'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/api/public/bridge/claim'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   id:
     | '__root__'
     | '/'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/api/public/bridge/claim'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
   ApiPublicBridgeIngestRoute: typeof ApiPublicBridgeIngestRoute
   ApiPublicBridgePresetsRoute: typeof ApiPublicBridgePresetsRoute
+  ApiPublicBridgeStepRoute: typeof ApiPublicBridgeStepRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -331,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CamerasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bridge/step': {
+      id: '/api/public/bridge/step'
+      path: '/api/public/bridge/step'
+      fullPath: '/api/public/bridge/step'
+      preLoaderRoute: typeof ApiPublicBridgeStepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bridge/presets': {
       id: '/api/public/bridge/presets'
       path: '/api/public/bridge/presets'
@@ -372,6 +392,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,
   ApiPublicBridgeIngestRoute: ApiPublicBridgeIngestRoute,
   ApiPublicBridgePresetsRoute: ApiPublicBridgePresetsRoute,
+  ApiPublicBridgeStepRoute: ApiPublicBridgeStepRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

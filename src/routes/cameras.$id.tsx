@@ -7,6 +7,7 @@ import { useSession } from "@/lib/auth";
 import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey, intervalLabel, intervalMs } from "@/lib/mock-camera";
 import { toast } from "sonner";
 import { CameraBridge, isNativeApp, base64JpegToBlob } from "@/lib/native-camera";
+import { CameraPresetsPanel } from "@/components/CameraPresetsPanel";
 
 export const Route = createFileRoute("/cameras/$id")({
   component: CameraDetail,
@@ -29,7 +30,7 @@ function CameraDetail() {
   const nav = useNavigate();
   const [cam, setCam] = useState<Camera | null>(null);
   const [snaps, setSnaps] = useState<Snap[]>([]);
-  const [tab, setTab] = useState<"live" | "schedule" | "timeline">("live");
+  const [tab, setTab] = useState<"live" | "presets" | "schedule" | "timeline">("live");
   const [, setTick] = useState(0);
   const [pendingPhotoId, setPendingPhotoId] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
@@ -280,8 +281,8 @@ function CameraDetail() {
         <p className="text-xs text-muted-foreground capitalize">{cam.brand} · {intervalLabel(cam.snapshot_interval_minutes).toLowerCase()}</p>
 
         {/* Tabs */}
-        <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-3 text-xs font-medium">
-          {(["live", "schedule", "timeline"] as const).map((t) => (
+        <div className="mt-5 glass rounded-2xl p-1 grid grid-cols-4 text-[11px] font-medium">
+          {(["live", "presets", "schedule", "timeline"] as const).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`py-2 rounded-xl capitalize transition ${tab === t ? "gradient-reef text-primary-foreground" : "text-muted-foreground"}`}>
               {t}
@@ -358,6 +359,8 @@ function CameraDetail() {
           </>
           );
         })()}
+
+        {tab === "presets" && <CameraPresetsPanel cameraId={cam.id} />}
 
         {tab === "schedule" && (
           <div className="mt-5 space-y-4">

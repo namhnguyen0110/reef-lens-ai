@@ -16,12 +16,22 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoralsIndexRouteImport } from './routes/corals.index'
 import { Route as CamerasIndexRouteImport } from './routes/cameras.index'
+import { Route as AutomationsIndexRouteImport } from './routes/automations.index'
+import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
 import { Route as CropIdRouteImport } from './routes/crop.$id'
 import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
 import { Route as CamerasNewRouteImport } from './routes/cameras.new'
 import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
+import { Route as AreasIdRouteImport } from './routes/areas.$id'
+import { Route as AutomationsIdIndexRouteImport } from './routes/automations.$id.index'
+import { Route as AutomationsIdRunsRouteImport } from './routes/automations.$id.runs'
+import { Route as ApiPublicBridgeStepRouteImport } from './routes/api/public/bridge/step'
+import { Route as ApiPublicBridgePresetsRouteImport } from './routes/api/public/bridge/presets'
+import { Route as ApiPublicBridgeIngestRouteImport } from './routes/api/public/bridge/ingest'
+import { Route as ApiPublicBridgeCompareRouteImport } from './routes/api/public/bridge/compare'
+import { Route as ApiPublicBridgeClaimRouteImport } from './routes/api/public/bridge/claim'
 
 const TimelineRoute = TimelineRouteImport.update({
   id: '/timeline',
@@ -58,6 +68,16 @@ const CamerasIndexRoute = CamerasIndexRouteImport.update({
   path: '/cameras/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationsIndexRoute = AutomationsIndexRouteImport.update({
+  id: '/automations/',
+  path: '/automations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasIndexRoute = AreasIndexRouteImport.update({
+  id: '/areas/',
+  path: '/areas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PhotoIdRoute = PhotoIdRouteImport.update({
   id: '/photo/$id',
   path: '/photo/$id',
@@ -88,6 +108,46 @@ const CamerasIdRoute = CamerasIdRouteImport.update({
   path: '/cameras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AreasIdRoute = AreasIdRouteImport.update({
+  id: '/areas/$id',
+  path: '/areas/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationsIdIndexRoute = AutomationsIdIndexRouteImport.update({
+  id: '/automations/$id/',
+  path: '/automations/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationsIdRunsRoute = AutomationsIdRunsRouteImport.update({
+  id: '/automations/$id/runs',
+  path: '/automations/$id/runs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBridgeStepRoute = ApiPublicBridgeStepRouteImport.update({
+  id: '/api/public/bridge/step',
+  path: '/api/public/bridge/step',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBridgePresetsRoute = ApiPublicBridgePresetsRouteImport.update({
+  id: '/api/public/bridge/presets',
+  path: '/api/public/bridge/presets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBridgeIngestRoute = ApiPublicBridgeIngestRouteImport.update({
+  id: '/api/public/bridge/ingest',
+  path: '/api/public/bridge/ingest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBridgeCompareRoute = ApiPublicBridgeCompareRouteImport.update({
+  id: '/api/public/bridge/compare',
+  path: '/api/public/bridge/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBridgeClaimRoute = ApiPublicBridgeClaimRouteImport.update({
+  id: '/api/public/bridge/claim',
+  path: '/api/public/bridge/claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,14 +155,24 @@ export interface FileRoutesByFullPath {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/areas/': typeof AreasIndexRoute
+  '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/automations/$id/runs': typeof AutomationsIdRunsRoute
+  '/automations/$id/': typeof AutomationsIdIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
+  '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
+  '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,14 +180,24 @@ export interface FileRoutesByTo {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/areas': typeof AreasIndexRoute
+  '/automations': typeof AutomationsIndexRoute
   '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
+  '/automations/$id/runs': typeof AutomationsIdRunsRoute
+  '/automations/$id': typeof AutomationsIdIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
+  '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
+  '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,14 +206,24 @@ export interface FileRoutesById {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
   '/corals/$id': typeof CoralsIdRoute
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
+  '/areas/': typeof AreasIndexRoute
+  '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/automations/$id/runs': typeof AutomationsIdRunsRoute
+  '/automations/$id/': typeof AutomationsIdIndexRoute
+  '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
+  '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
+  '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
+  '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -143,14 +233,24 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/areas/'
+    | '/automations/'
     | '/cameras/'
     | '/corals/'
+    | '/automations/$id/runs'
+    | '/automations/$id/'
+    | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
+    | '/api/public/bridge/ingest'
+    | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -158,14 +258,24 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/areas'
+    | '/automations'
     | '/cameras'
     | '/corals'
+    | '/automations/$id/runs'
+    | '/automations/$id'
+    | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
+    | '/api/public/bridge/ingest'
+    | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   id:
     | '__root__'
     | '/'
@@ -173,14 +283,24 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
     | '/corals/$id'
     | '/crop/$id'
     | '/photo/$id'
+    | '/areas/'
+    | '/automations/'
     | '/cameras/'
     | '/corals/'
+    | '/automations/$id/runs'
+    | '/automations/$id/'
+    | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
+    | '/api/public/bridge/ingest'
+    | '/api/public/bridge/presets'
+    | '/api/public/bridge/step'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -189,14 +309,24 @@ export interface RootRouteChildren {
   CaptureRoute: typeof CaptureRoute
   InsightsRoute: typeof InsightsRoute
   TimelineRoute: typeof TimelineRoute
+  AreasIdRoute: typeof AreasIdRoute
   CamerasIdRoute: typeof CamerasIdRoute
   CamerasNewRoute: typeof CamerasNewRoute
   CompareIdRoute: typeof CompareIdRoute
   CoralsIdRoute: typeof CoralsIdRoute
   CropIdRoute: typeof CropIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
+  AreasIndexRoute: typeof AreasIndexRoute
+  AutomationsIndexRoute: typeof AutomationsIndexRoute
   CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
+  AutomationsIdRunsRoute: typeof AutomationsIdRunsRoute
+  AutomationsIdIndexRoute: typeof AutomationsIdIndexRoute
+  ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
+  ApiPublicBridgeCompareRoute: typeof ApiPublicBridgeCompareRoute
+  ApiPublicBridgeIngestRoute: typeof ApiPublicBridgeIngestRoute
+  ApiPublicBridgePresetsRoute: typeof ApiPublicBridgePresetsRoute
+  ApiPublicBridgeStepRoute: typeof ApiPublicBridgeStepRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -250,6 +380,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CamerasIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automations/': {
+      id: '/automations/'
+      path: '/automations'
+      fullPath: '/automations/'
+      preLoaderRoute: typeof AutomationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas/': {
+      id: '/areas/'
+      path: '/areas'
+      fullPath: '/areas/'
+      preLoaderRoute: typeof AreasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/photo/$id': {
       id: '/photo/$id'
       path: '/photo/$id'
@@ -292,6 +436,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CamerasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/areas/$id': {
+      id: '/areas/$id'
+      path: '/areas/$id'
+      fullPath: '/areas/$id'
+      preLoaderRoute: typeof AreasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automations/$id/': {
+      id: '/automations/$id/'
+      path: '/automations/$id'
+      fullPath: '/automations/$id/'
+      preLoaderRoute: typeof AutomationsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automations/$id/runs': {
+      id: '/automations/$id/runs'
+      path: '/automations/$id/runs'
+      fullPath: '/automations/$id/runs'
+      preLoaderRoute: typeof AutomationsIdRunsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bridge/step': {
+      id: '/api/public/bridge/step'
+      path: '/api/public/bridge/step'
+      fullPath: '/api/public/bridge/step'
+      preLoaderRoute: typeof ApiPublicBridgeStepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bridge/presets': {
+      id: '/api/public/bridge/presets'
+      path: '/api/public/bridge/presets'
+      fullPath: '/api/public/bridge/presets'
+      preLoaderRoute: typeof ApiPublicBridgePresetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bridge/ingest': {
+      id: '/api/public/bridge/ingest'
+      path: '/api/public/bridge/ingest'
+      fullPath: '/api/public/bridge/ingest'
+      preLoaderRoute: typeof ApiPublicBridgeIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bridge/compare': {
+      id: '/api/public/bridge/compare'
+      path: '/api/public/bridge/compare'
+      fullPath: '/api/public/bridge/compare'
+      preLoaderRoute: typeof ApiPublicBridgeCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bridge/claim': {
+      id: '/api/public/bridge/claim'
+      path: '/api/public/bridge/claim'
+      fullPath: '/api/public/bridge/claim'
+      preLoaderRoute: typeof ApiPublicBridgeClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -301,14 +501,24 @@ const rootRouteChildren: RootRouteChildren = {
   CaptureRoute: CaptureRoute,
   InsightsRoute: InsightsRoute,
   TimelineRoute: TimelineRoute,
+  AreasIdRoute: AreasIdRoute,
   CamerasIdRoute: CamerasIdRoute,
   CamerasNewRoute: CamerasNewRoute,
   CompareIdRoute: CompareIdRoute,
   CoralsIdRoute: CoralsIdRoute,
   CropIdRoute: CropIdRoute,
   PhotoIdRoute: PhotoIdRoute,
+  AreasIndexRoute: AreasIndexRoute,
+  AutomationsIndexRoute: AutomationsIndexRoute,
   CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
+  AutomationsIdRunsRoute: AutomationsIdRunsRoute,
+  AutomationsIdIndexRoute: AutomationsIdIndexRoute,
+  ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,
+  ApiPublicBridgeCompareRoute: ApiPublicBridgeCompareRoute,
+  ApiPublicBridgeIngestRoute: ApiPublicBridgeIngestRoute,
+  ApiPublicBridgePresetsRoute: ApiPublicBridgePresetsRoute,
+  ApiPublicBridgeStepRoute: ApiPublicBridgeStepRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

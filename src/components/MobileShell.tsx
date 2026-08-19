@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Camera, Clock, Shell, Video } from "lucide-react";
+import { Home, Camera, Clock, Shell, Video, Workflow } from "lucide-react";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 
@@ -28,6 +28,7 @@ function BottomNav() {
     { to: "/", icon: Home, label: "Home" },
     { to: "/corals", icon: Shell, label: "Corals" },
     { to: "/cameras", icon: Video, label: "Cameras" },
+    { to: "/automations", icon: Workflow, label: "Auto" },
     { to: "/capture", icon: Camera, label: "Capture" },
     { to: "/timeline", icon: Clock, label: "Timeline" },
   ];
@@ -40,7 +41,7 @@ function BottomNav() {
             <Link
               key={to}
               to={to}
-              className="relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl"
+              className="relative flex flex-col items-center gap-1 px-2.5 py-2 rounded-2xl"
             >
               {active && (
                 <motion.div

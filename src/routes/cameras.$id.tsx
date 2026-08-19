@@ -7,6 +7,7 @@ import { useSession } from "@/lib/auth";
 import { mockLiveUrl, mockSnapshotUrl, MOCK_LIVE_VIDEO, INTERVAL_OPTIONS, isWithinWindow, dahuaSnapshotCandidates, dahuaCredsKey, intervalLabel, intervalMs } from "@/lib/mock-camera";
 import { toast } from "sonner";
 import { CameraBridge, isNativeApp, base64JpegToBlob } from "@/lib/native-camera";
+import { CameraPresetsPanel } from "@/components/CameraPresetsPanel";
 
 export const Route = createFileRoute("/cameras/$id")({
   component: CameraDetail,

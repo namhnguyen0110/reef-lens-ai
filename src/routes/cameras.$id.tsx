@@ -29,7 +29,7 @@ function CameraDetail() {
   const nav = useNavigate();
   const [cam, setCam] = useState<Camera | null>(null);
   const [snaps, setSnaps] = useState<Snap[]>([]);
-  const [tab, setTab] = useState<"live" | "schedule" | "timeline">("live");
+  const [tab, setTab] = useState<"live" | "presets" | "schedule" | "timeline">("live");
   const [, setTick] = useState(0);
   const [pendingPhotoId, setPendingPhotoId] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);

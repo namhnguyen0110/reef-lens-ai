@@ -25,6 +25,7 @@ import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
 import { Route as ApiPublicBridgeStepRouteImport } from './routes/api/public/bridge/step'
 import { Route as ApiPublicBridgePresetsRouteImport } from './routes/api/public/bridge/presets'
 import { Route as ApiPublicBridgeIngestRouteImport } from './routes/api/public/bridge/ingest'
+import { Route as ApiPublicBridgeCompareRouteImport } from './routes/api/public/bridge/compare'
 import { Route as ApiPublicBridgeClaimRouteImport } from './routes/api/public/bridge/claim'
 
 const TimelineRoute = TimelineRouteImport.update({
@@ -107,6 +108,11 @@ const ApiPublicBridgeIngestRoute = ApiPublicBridgeIngestRouteImport.update({
   path: '/api/public/bridge/ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBridgeCompareRoute = ApiPublicBridgeCompareRouteImport.update({
+  id: '/api/public/bridge/compare',
+  path: '/api/public/bridge/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBridgeClaimRoute = ApiPublicBridgeClaimRouteImport.update({
   id: '/api/public/bridge/claim',
   path: '/api/public/bridge/claim',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
   '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
   '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
+  '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
   '/api/public/bridge/presets': typeof ApiPublicBridgePresetsRoute
   '/api/public/bridge/step': typeof ApiPublicBridgeStepRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/cameras/'
     | '/corals/'
     | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
     | '/api/public/bridge/step'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/cameras'
     | '/corals'
     | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
     | '/api/public/bridge/step'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/cameras/'
     | '/corals/'
     | '/api/public/bridge/claim'
+    | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
     | '/api/public/bridge/presets'
     | '/api/public/bridge/step'
@@ -246,6 +258,7 @@ export interface RootRouteChildren {
   CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
   ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
+  ApiPublicBridgeCompareRoute: typeof ApiPublicBridgeCompareRoute
   ApiPublicBridgeIngestRoute: typeof ApiPublicBridgeIngestRoute
   ApiPublicBridgePresetsRoute: typeof ApiPublicBridgePresetsRoute
   ApiPublicBridgeStepRoute: typeof ApiPublicBridgeStepRoute
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBridgeIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bridge/compare': {
+      id: '/api/public/bridge/compare'
+      path: '/api/public/bridge/compare'
+      fullPath: '/api/public/bridge/compare'
+      preLoaderRoute: typeof ApiPublicBridgeCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bridge/claim': {
       id: '/api/public/bridge/claim'
       path: '/api/public/bridge/claim'
@@ -390,6 +410,7 @@ const rootRouteChildren: RootRouteChildren = {
   CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
   ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,
+  ApiPublicBridgeCompareRoute: ApiPublicBridgeCompareRoute,
   ApiPublicBridgeIngestRoute: ApiPublicBridgeIngestRoute,
   ApiPublicBridgePresetsRoute: ApiPublicBridgePresetsRoute,
   ApiPublicBridgeStepRoute: ApiPublicBridgeStepRoute,

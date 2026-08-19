@@ -14,6 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
+      areas: {
+        Row: {
+          cover_photo_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          tank_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_photo_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          tank_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_photo_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          tank_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bridge_devices: {
+        Row: {
+          camera_id: string | null
+          created_at: string
+          id: string
+          last_seen_at: string | null
+          name: string
+          token_hash: string
+          token_hint: string | null
+          user_id: string
+        }
+        Insert: {
+          camera_id?: string | null
+          created_at?: string
+          id?: string
+          last_seen_at?: string | null
+          name?: string
+          token_hash: string
+          token_hint?: string | null
+          user_id: string
+        }
+        Update: {
+          camera_id?: string | null
+          created_at?: string
+          id?: string
+          last_seen_at?: string | null
+          name?: string
+          token_hash?: string
+          token_hint?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bridge_devices_camera_id_fkey"
+            columns: ["camera_id"]
+            isOneToOne: false
+            referencedRelation: "cameras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      camera_presets: {
+        Row: {
+          area_id: string | null
+          camera_id: string
+          created_at: string
+          id: string
+          name: string
+          preset_number: number
+          settle_ms: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          area_id?: string | null
+          camera_id: string
+          created_at?: string
+          id?: string
+          name: string
+          preset_number: number
+          settle_ms?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          area_id?: string | null
+          camera_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          preset_number?: number
+          settle_ms?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "camera_presets_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "camera_presets_camera_id_fkey"
+            columns: ["camera_id"]
+            isOneToOne: false
+            referencedRelation: "cameras"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cameras: {
         Row: {
           active_window_end: string | null
@@ -155,7 +280,9 @@ export type Database = {
         Row: {
           affected_area: string | null
           alternatives: Json | null
+          area_id: string | null
           auto_captured: boolean
+          burst_group_id: string | null
           camera_id: string | null
           captured_at: string | null
           confidence: number | null
@@ -187,7 +314,9 @@ export type Database = {
         Insert: {
           affected_area?: string | null
           alternatives?: Json | null
+          area_id?: string | null
           auto_captured?: boolean
+          burst_group_id?: string | null
           camera_id?: string | null
           captured_at?: string | null
           confidence?: number | null
@@ -219,7 +348,9 @@ export type Database = {
         Update: {
           affected_area?: string | null
           alternatives?: Json | null
+          area_id?: string | null
           auto_captured?: boolean
+          burst_group_id?: string | null
           camera_id?: string | null
           captured_at?: string | null
           confidence?: number | null
@@ -249,6 +380,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "photos_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "areas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "photos_coral_id_fkey"
             columns: ["coral_id"]
@@ -298,6 +436,206 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workflow_run_steps: {
+        Row: {
+          comparison_id: string | null
+          created_at: string
+          detail: string | null
+          finished_at: string | null
+          id: string
+          photo_ids: string[] | null
+          position: number
+          run_id: string
+          started_at: string | null
+          status: string
+          step_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          comparison_id?: string | null
+          created_at?: string
+          detail?: string | null
+          finished_at?: string | null
+          id?: string
+          photo_ids?: string[] | null
+          position?: number
+          run_id: string
+          started_at?: string | null
+          status?: string
+          step_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          comparison_id?: string | null
+          created_at?: string
+          detail?: string | null
+          finished_at?: string | null
+          id?: string
+          photo_ids?: string[] | null
+          position?: number
+          run_id?: string
+          started_at?: string | null
+          status?: string
+          step_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_run_steps_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_runs: {
+        Row: {
+          claimed_by: string | null
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          lease_expires_at: string | null
+          scheduled_for: string
+          started_at: string | null
+          status: string
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          claimed_by?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          lease_expires_at?: string | null
+          scheduled_for?: string
+          started_at?: string | null
+          status?: string
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          claimed_by?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          lease_expires_at?: string | null
+          scheduled_for?: string
+          started_at?: string | null
+          status?: string
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_steps: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          position: number
+          type: string
+          updated_at: string
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          position?: number
+          type: string
+          updated_at?: string
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          position?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_steps_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflows: {
+        Row: {
+          camera_id: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          interval_minutes: number | null
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          trigger_time: string | null
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          camera_id?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_minutes?: number | null
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          trigger_time?: string | null
+          trigger_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          camera_id?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          interval_minutes?: number | null
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          trigger_time?: string | null
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflows_camera_id_fkey"
+            columns: ["camera_id"]
+            isOneToOne: false
+            referencedRelation: "cameras"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

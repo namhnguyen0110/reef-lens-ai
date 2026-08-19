@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoralsIndexRouteImport } from './routes/corals.index'
 import { Route as CamerasIndexRouteImport } from './routes/cameras.index'
+import { Route as AutomationsIndexRouteImport } from './routes/automations.index'
 import { Route as AreasIndexRouteImport } from './routes/areas.index'
 import { Route as PhotoIdRouteImport } from './routes/photo.$id'
 import { Route as CropIdRouteImport } from './routes/crop.$id'
@@ -63,6 +64,11 @@ const CoralsIndexRoute = CoralsIndexRouteImport.update({
 const CamerasIndexRoute = CamerasIndexRouteImport.update({
   id: '/cameras/',
   path: '/cameras/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationsIndexRoute = AutomationsIndexRouteImport.update({
+  id: '/automations/',
+  path: '/automations/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AreasIndexRoute = AreasIndexRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/areas/': typeof AreasIndexRoute
+  '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/areas': typeof AreasIndexRoute
+  '/automations': typeof AutomationsIndexRoute
   '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/crop/$id': typeof CropIdRoute
   '/photo/$id': typeof PhotoIdRoute
   '/areas/': typeof AreasIndexRoute
+  '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/crop/$id'
     | '/photo/$id'
     | '/areas/'
+    | '/automations/'
     | '/cameras/'
     | '/corals/'
     | '/api/public/bridge/claim'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/crop/$id'
     | '/photo/$id'
     | '/areas'
+    | '/automations'
     | '/cameras'
     | '/corals'
     | '/api/public/bridge/claim'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/crop/$id'
     | '/photo/$id'
     | '/areas/'
+    | '/automations/'
     | '/cameras/'
     | '/corals/'
     | '/api/public/bridge/claim'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   CropIdRoute: typeof CropIdRoute
   PhotoIdRoute: typeof PhotoIdRoute
   AreasIndexRoute: typeof AreasIndexRoute
+  AutomationsIndexRoute: typeof AutomationsIndexRoute
   CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
   ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       path: '/cameras'
       fullPath: '/cameras/'
       preLoaderRoute: typeof CamerasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automations/': {
+      id: '/automations/'
+      path: '/automations'
+      fullPath: '/automations/'
+      preLoaderRoute: typeof AutomationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/areas/': {
@@ -449,6 +469,7 @@ const rootRouteChildren: RootRouteChildren = {
   CropIdRoute: CropIdRoute,
   PhotoIdRoute: PhotoIdRoute,
   AreasIndexRoute: AreasIndexRoute,
+  AutomationsIndexRoute: AutomationsIndexRoute,
   CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
   ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,

@@ -23,6 +23,7 @@ import { Route as CoralsIdRouteImport } from './routes/corals.$id'
 import { Route as CompareIdRouteImport } from './routes/compare.$id'
 import { Route as CamerasNewRouteImport } from './routes/cameras.new'
 import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
+import { Route as AreasIdRouteImport } from './routes/areas.$id'
 import { Route as ApiPublicBridgeStepRouteImport } from './routes/api/public/bridge/step'
 import { Route as ApiPublicBridgePresetsRouteImport } from './routes/api/public/bridge/presets'
 import { Route as ApiPublicBridgeIngestRouteImport } from './routes/api/public/bridge/ingest'
@@ -99,6 +100,11 @@ const CamerasIdRoute = CamerasIdRouteImport.update({
   path: '/cameras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AreasIdRoute = AreasIdRouteImport.update({
+  id: '/areas/$id',
+  path: '/areas/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBridgeStepRoute = ApiPublicBridgeStepRouteImport.update({
   id: '/api/public/bridge/step',
   path: '/api/public/bridge/step',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/capture': typeof CaptureRoute
   '/insights': typeof InsightsRoute
   '/timeline': typeof TimelineRoute
+  '/areas/$id': typeof AreasIdRoute
   '/cameras/$id': typeof CamerasIdRoute
   '/cameras/new': typeof CamerasNewRoute
   '/compare/$id': typeof CompareIdRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/capture'
     | '/insights'
     | '/timeline'
+    | '/areas/$id'
     | '/cameras/$id'
     | '/cameras/new'
     | '/compare/$id'
@@ -261,6 +273,7 @@ export interface RootRouteChildren {
   CaptureRoute: typeof CaptureRoute
   InsightsRoute: typeof InsightsRoute
   TimelineRoute: typeof TimelineRoute
+  AreasIdRoute: typeof AreasIdRoute
   CamerasIdRoute: typeof CamerasIdRoute
   CamerasNewRoute: typeof CamerasNewRoute
   CompareIdRoute: typeof CompareIdRoute
@@ -377,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CamerasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/areas/$id': {
+      id: '/areas/$id'
+      path: '/areas/$id'
+      fullPath: '/areas/$id'
+      preLoaderRoute: typeof AreasIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bridge/step': {
       id: '/api/public/bridge/step'
       path: '/api/public/bridge/step'
@@ -421,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaptureRoute: CaptureRoute,
   InsightsRoute: InsightsRoute,
   TimelineRoute: TimelineRoute,
+  AreasIdRoute: AreasIdRoute,
   CamerasIdRoute: CamerasIdRoute,
   CamerasNewRoute: CamerasNewRoute,
   CompareIdRoute: CompareIdRoute,

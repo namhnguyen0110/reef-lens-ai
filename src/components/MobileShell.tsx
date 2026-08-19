@@ -41,7 +41,7 @@ function BottomNav() {
             <Link
               key={to}
               to={to}
-              className="relative flex flex-col items-center gap-1 px-4 py-2 rounded-2xl"
+              className="relative flex flex-col items-center gap-1 px-2.5 py-2 rounded-2xl"
             >
               {active && (
                 <motion.div

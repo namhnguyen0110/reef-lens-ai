@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Plus, Workflow, ChevronRight, Play, Power } from "lucide-react";
+import { Plus, Workflow, ChevronRight, Play, Power, Wand2, Loader2 } from "lucide-react";
 import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { toast } from "sonner";
+import { seedDemoSetup } from "@/lib/demo-seed";
 
 export const Route = createFileRoute("/automations/")({
   component: AutomationsPage,
@@ -35,6 +36,22 @@ function AutomationsPage() {
   const { session, loading } = useSession();
   const nav = useNavigate();
   const [items, setItems] = useState<Wf[]>([]);
+  const [seeding, setSeeding] = useState(false);
+
+  const seedDemo = async () => {
+    if (!session) return;
+    setSeeding(true);
+    try {
+      const res = await seedDemoSetup(session.user.id);
+      toast.success(`Demo ready — ${res.presets} presets, ${res.areas} area folders, ${res.seededPhotos} sample photos`);
+      await load();
+      if (res.workflowId) nav({ to: "/automations/$id", params: { id: res.workflowId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not create demo data");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 
@@ -95,6 +112,12 @@ function AutomationsPage() {
             <Plus className="h-4 w-4" /> New
           </button>
         </div>
+
+        <button onClick={seedDemo} disabled={seeding}
+          className="mt-4 w-full glass rounded-2xl py-3.5 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50">
+          {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4 text-primary" />}
+          Create demo presets, areas & sample workflow
+        </button>
 
         <div className="mt-5 space-y-3">
           {items.length === 0 && (

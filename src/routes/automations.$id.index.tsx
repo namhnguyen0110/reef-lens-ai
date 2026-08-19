@@ -15,6 +15,7 @@ import { MobileShell } from "@/components/MobileShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { toast } from "sonner";
+import { SimulateRunSheet } from "@/components/SimulateRunSheet";
 import {
   defaultConfig, describeStep, OFFSET_OPTIONS, STEP_META, TRIGGER_TYPES,
   type StepConfig, type StepType, type WorkflowStep,
@@ -54,6 +55,7 @@ function WorkflowBuilder() {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [adding, setAdding] = useState(false);
+  const [simOpen, setSimOpen] = useState(false);
 
   useEffect(() => { if (!loading && !session) nav({ to: "/auth" }); }, [loading, session, nav]);
 
@@ -256,10 +258,23 @@ function WorkflowBuilder() {
         <button onClick={runNow} className="mt-3 w-full gradient-reef rounded-2xl py-4 font-semibold text-primary-foreground glow-aqua flex items-center justify-center gap-2">
           <Play className="h-4 w-4" /> Run now
         </button>
+        <button onClick={() => setSimOpen(true)} className="mt-2 w-full glass rounded-2xl py-3.5 text-sm font-medium flex items-center justify-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" /> Simulate run with a sample image
+        </button>
         <p className="mt-3 text-[11px] text-muted-foreground text-center">
-          Runs are executed by your home bridge. Set it up from the camera's Presets tab.
+          "Run now" is executed by your home bridge. No bridge yet? Simulate the run with a sample or uploaded image to test the whole flow.
         </p>
       </div>
+
+      <SimulateRunSheet
+        open={simOpen}
+        onClose={() => { setSimOpen(false); load(); }}
+        userId={session.user.id}
+        workflowId={id}
+        cameraId={wf.camera_id}
+        steps={steps}
+        presets={presets}
+      />
     </MobileShell>
   );
 }

@@ -25,6 +25,7 @@ import { Route as CompareIdRouteImport } from './routes/compare.$id'
 import { Route as CamerasNewRouteImport } from './routes/cameras.new'
 import { Route as CamerasIdRouteImport } from './routes/cameras.$id'
 import { Route as AreasIdRouteImport } from './routes/areas.$id'
+import { Route as AutomationsIdIndexRouteImport } from './routes/automations.$id.index'
 import { Route as ApiPublicBridgeStepRouteImport } from './routes/api/public/bridge/step'
 import { Route as ApiPublicBridgePresetsRouteImport } from './routes/api/public/bridge/presets'
 import { Route as ApiPublicBridgeIngestRouteImport } from './routes/api/public/bridge/ingest'
@@ -111,6 +112,11 @@ const AreasIdRoute = AreasIdRouteImport.update({
   path: '/areas/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationsIdIndexRoute = AutomationsIdIndexRouteImport.update({
+  id: '/automations/$id/',
+  path: '/automations/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBridgeStepRoute = ApiPublicBridgeStepRouteImport.update({
   id: '/api/public/bridge/step',
   path: '/api/public/bridge/step',
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/automations/$id/': typeof AutomationsIdIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
@@ -177,6 +184,7 @@ export interface FileRoutesByTo {
   '/automations': typeof AutomationsIndexRoute
   '/cameras': typeof CamerasIndexRoute
   '/corals': typeof CoralsIndexRoute
+  '/automations/$id': typeof AutomationsIdIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
@@ -201,6 +209,7 @@ export interface FileRoutesById {
   '/automations/': typeof AutomationsIndexRoute
   '/cameras/': typeof CamerasIndexRoute
   '/corals/': typeof CoralsIndexRoute
+  '/automations/$id/': typeof AutomationsIdIndexRoute
   '/api/public/bridge/claim': typeof ApiPublicBridgeClaimRoute
   '/api/public/bridge/compare': typeof ApiPublicBridgeCompareRoute
   '/api/public/bridge/ingest': typeof ApiPublicBridgeIngestRoute
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/automations/'
     | '/cameras/'
     | '/corals/'
+    | '/automations/$id/'
     | '/api/public/bridge/claim'
     | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/automations'
     | '/cameras'
     | '/corals'
+    | '/automations/$id'
     | '/api/public/bridge/claim'
     | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/automations/'
     | '/cameras/'
     | '/corals/'
+    | '/automations/$id/'
     | '/api/public/bridge/claim'
     | '/api/public/bridge/compare'
     | '/api/public/bridge/ingest'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   AutomationsIndexRoute: typeof AutomationsIndexRoute
   CamerasIndexRoute: typeof CamerasIndexRoute
   CoralsIndexRoute: typeof CoralsIndexRoute
+  AutomationsIdIndexRoute: typeof AutomationsIdIndexRoute
   ApiPublicBridgeClaimRoute: typeof ApiPublicBridgeClaimRoute
   ApiPublicBridgeCompareRoute: typeof ApiPublicBridgeCompareRoute
   ApiPublicBridgeIngestRoute: typeof ApiPublicBridgeIngestRoute
@@ -417,6 +430,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AreasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automations/$id/': {
+      id: '/automations/$id/'
+      path: '/automations/$id'
+      fullPath: '/automations/$id/'
+      preLoaderRoute: typeof AutomationsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bridge/step': {
       id: '/api/public/bridge/step'
       path: '/api/public/bridge/step'
@@ -472,6 +492,7 @@ const rootRouteChildren: RootRouteChildren = {
   AutomationsIndexRoute: AutomationsIndexRoute,
   CamerasIndexRoute: CamerasIndexRoute,
   CoralsIndexRoute: CoralsIndexRoute,
+  AutomationsIdIndexRoute: AutomationsIdIndexRoute,
   ApiPublicBridgeClaimRoute: ApiPublicBridgeClaimRoute,
   ApiPublicBridgeCompareRoute: ApiPublicBridgeCompareRoute,
   ApiPublicBridgeIngestRoute: ApiPublicBridgeIngestRoute,
